@@ -8,29 +8,26 @@ import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.util.List;
-import java.util.Set;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Entity
-public class Course {
+public class Chapter {
+
     @Id
     @GeneratedValue(generator = "UUID")
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
     private String id;
 
-    private String name;
-    private String courseCode;
-    private String category;
-    private String type;
-    private String level;
-    private double price;
-    private String description;
-    private String author;
+    private int chapterNo;
+    private String chapterTitle;
 
-    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
-    private List<Chapter> chapter;
+    @OneToMany(mappedBy = "chapter", cascade = CascadeType.ALL)
+    private List<Subject> subject;
 
+    @ManyToOne
+    @JoinColumn(name = "course_id")
+    private Course course;
 }
