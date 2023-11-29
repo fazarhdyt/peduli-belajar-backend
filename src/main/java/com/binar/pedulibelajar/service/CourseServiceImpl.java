@@ -1,9 +1,9 @@
-package com.binar.pedulibelajar.Service;
+package com.binar.pedulibelajar.service;
 
-import com.binar.pedulibelajar.Model.Course;
+import com.binar.pedulibelajar.model.Course;
 import com.binar.pedulibelajar.dto.Request.CourseRequest;
 import com.binar.pedulibelajar.dto.Response.CourseResponse;
-import com.binar.pedulibelajar.Repository.CourseRepository;
+import com.binar.pedulibelajar.repository.CourseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

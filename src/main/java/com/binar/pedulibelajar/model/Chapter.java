@@ -1,4 +1,4 @@
-package com.binar.pedulibelajar.Model;
+package com.binar.pedulibelajar.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,24 +14,20 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @Entity
-public class Subject {
+public class Chapter {
 
     @Id
     @GeneratedValue(generator = "UUID")
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
     private String id;
 
-    private int subjectNo;
-    private String videoTitle;
-    private String videoLink;
-    private String description;
+    private int chapterNo;
+    private String chapterTitle;
+
+    @OneToMany(mappedBy = "chapter", cascade = CascadeType.ALL)
+    private List<Subject> subject;
 
     @ManyToOne
-    @JoinColumn(name = "chapter_id", referencedColumnName = "id")
-    private Chapter chapter;
-
-    @ManyToOne
-    @JoinColumn(name = "material_type_id", referencedColumnName = "id")
-    private MaterialType materialType;
-
+    @JoinColumn(name = "course_id")
+    private Course course;
 }

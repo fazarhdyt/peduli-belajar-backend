@@ -1,6 +1,6 @@
-package com.binar.pedulibelajar.Repository;
+package com.binar.pedulibelajar.repository;
 
-import com.binar.pedulibelajar.Model.Course;
+import com.binar.pedulibelajar.model.Course;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

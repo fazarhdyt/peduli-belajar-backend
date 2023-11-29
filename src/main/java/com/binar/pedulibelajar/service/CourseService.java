@@ -1,4 +1,4 @@
-package com.binar.pedulibelajar.Service;
+package com.binar.pedulibelajar.service;
 
 import com.binar.pedulibelajar.dto.Request.CourseRequest;
 import com.binar.pedulibelajar.dto.Response.CourseResponse;
