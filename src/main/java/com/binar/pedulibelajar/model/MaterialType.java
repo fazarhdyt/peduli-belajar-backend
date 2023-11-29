@@ -6,32 +6,21 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 
-import javax.persistence.*;
-import java.util.List;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Entity
-public class Course {
+public class MaterialType {
 
     @Id
     @GeneratedValue(generator = "UUID")
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
     private String id;
 
-    private String name;
-    private String courseCode;
-    private String category;
-    private String type;
-    private String level;
-    private double price;
-    private String description;
-    private String author;
-
-    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
-    private List<Chapter> chapter;
-
-}
+    private String materialTypeName;
 }
