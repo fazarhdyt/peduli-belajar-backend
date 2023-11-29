@@ -15,6 +15,7 @@ import java.util.List;
 @Builder
 @Entity
 public class Course {
+
     @Id
     @GeneratedValue(generator = "UUID")
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
@@ -32,4 +33,5 @@ public class Course {
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
     private List<Chapter> chapter;
 
+}
 }
