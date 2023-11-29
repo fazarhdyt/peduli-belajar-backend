@@ -13,8 +13,10 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/course")
 public class CourseController {
+
     @Autowired
     private CourseService courseService;
+
     @GetMapping("/courses")
     @Operation(summary = "api to get course")
     public ResponseEntity<List<CourseResponse>> getAllCourses(){

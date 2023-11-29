@@ -31,6 +31,6 @@ public class Subject {
 
     @ManyToOne
     @JoinColumn(name = "material_type_id", referencedColumnName = "id")
-    private MaterialType materialType;
+    private SubjectType materialType;
 
 }
