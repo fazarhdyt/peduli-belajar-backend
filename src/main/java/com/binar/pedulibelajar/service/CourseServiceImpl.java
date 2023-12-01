@@ -63,15 +63,17 @@ public class CourseServiceImpl implements CourseService{
 
     private CourseResponse mapToResponse(Course course) {
         CourseResponse response = new CourseResponse();
-        response.setId(course.getId());
-        response.setName(course.getName());
-        response.setCourseCode(course.getCourseCode());
-        response.setCategory(course.getCategory());
-        response.setType(course.getType());
-        response.setLevel(course.getLevel());
-        response.setPrice(course.getPrice());
-        response.setDescription(course.getDescription());
-        response.setAuthor(course.getAuthor());
+        response.setCode(course.hashCode());
+        response.setStatus("Succes");
+
+        CourseResponse.CourseData responseData = new CourseResponse.CourseData();
+        responseData.setName(course.getName());
+        responseData.setCategory(course.getCategory());
+        responseData.setCourseCode(course.getCourseCode());
+        responseData.setType(course.getType());
+        responseData.setLevel(course.getLevel());
+        responseData.setPrice(course.getPrice());
+        response.setData(responseData);
         return response;
     }
 
