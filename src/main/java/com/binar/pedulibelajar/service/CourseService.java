@@ -1,14 +1,15 @@
 package com.binar.pedulibelajar.service;
 
-import com.binar.pedulibelajar.dto.Request.CourseRequest;
-import com.binar.pedulibelajar.dto.Response.CourseResponse;
+import com.binar.pedulibelajar.dto.request.CourseRequest;
+import com.binar.pedulibelajar.dto.response.CourseResponse;
+import com.binar.pedulibelajar.dto.response.CreateCourseResponse;
 
 import java.util.List;
 
 public interface CourseService {
     List<CourseResponse> getAllCourses();
     CourseResponse getCourseByCourseCode(String courseCode);
-    CourseResponse createCourse(CourseRequest courseRequest);
-    CourseResponse updateCourse(String courseCode,  CourseRequest courseRequest);
+    CreateCourseResponse createCourse(CourseRequest courseRequest);
+    CreateCourseResponse updateCourse(String courseCode,  CourseRequest courseRequest);
     void deleteCourse(String courseCode);
 }
