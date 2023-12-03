@@ -1,11 +1,12 @@
-package com.binar.pedulibelajar.dto.Response;
+package com.binar.pedulibelajar.dto.response;
 
 import lombok.Data;
+
+import java.util.List;
 
 @Data
 public class CourseResponse {
 
-    private String id;
     private String name;
     private String courseCode;
     private String category;
@@ -14,5 +15,6 @@ public class CourseResponse {
     private double price;
     private String description;
     private String author;
+    private List<ChapterResponse> chapter;
 }
 
