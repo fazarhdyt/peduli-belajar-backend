@@ -30,7 +30,7 @@ public class Course {
     private String description;
     private String author;
 
-    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Chapter> chapter;
 
 }
