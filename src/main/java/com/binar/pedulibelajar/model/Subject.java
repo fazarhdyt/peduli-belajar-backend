@@ -23,14 +23,13 @@ public class Subject {
     private int subjectNo;
     private String videoTitle;
     private String videoLink;
-    private String description;
 
     @ManyToOne
     @JoinColumn(name = "chapter_id", referencedColumnName = "id")
     private Chapter chapter;
 
     @ManyToOne
-    @JoinColumn(name = "material_type_id", referencedColumnName = "id")
+    @JoinColumn(name = "subject_type_id", referencedColumnName = "id")
     private SubjectType subjectType;
 
 }
