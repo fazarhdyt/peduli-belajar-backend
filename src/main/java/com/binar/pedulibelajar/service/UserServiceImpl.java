@@ -22,6 +22,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.transaction.Transactional;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Service
 @Transactional
@@ -91,9 +94,11 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
 
         OTP otp = otpService.createOTP(user.getEmail());
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss dd-MM-yyyy");
+        ZonedDateTime zonedDateTime = otp.getExpiryDate().atZone(ZoneId.systemDefault());
 
         String subject = "Account Verification";
-        String body = "Your OTP : " + otp.getOtp();
+        String body = "Your OTP : " + otp.getOtp() + " valid until " + formatter.format(zonedDateTime);
         senderService.sendMail(user.getEmail(), subject, body);
 
         return user;
