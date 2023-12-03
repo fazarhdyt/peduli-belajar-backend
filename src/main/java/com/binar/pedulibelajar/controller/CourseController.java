@@ -1,14 +1,13 @@
 package com.binar.pedulibelajar.controller;
 
-import com.binar.pedulibelajar.dto.Request.CourseRequest;
-import com.binar.pedulibelajar.dto.Response.CourseResponse;
+import com.binar.pedulibelajar.dto.request.CourseRequest;
+import com.binar.pedulibelajar.dto.response.ResponseData;
 import com.binar.pedulibelajar.service.CourseService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/course")
@@ -17,34 +16,34 @@ public class CourseController {
     @Autowired
     private CourseService courseService;
 
-    @GetMapping("/courses")
-    @Operation(summary = "api to get course")
-    public ResponseEntity<List<CourseResponse>> getAllCourses(){
-        return ResponseEntity.ok(courseService.getAllCourses());
+    @GetMapping
+    @Operation(summary = "api to get all course")
+    public ResponseEntity<Object> getAllCourses(){
+        return ResponseData.statusResponse(courseService.getAllCourses(), HttpStatus.OK, "success get all course");
     }
 
     @GetMapping("/{courseCode}")
     @Operation(summary = "api to get course by courseCode")
-    public ResponseEntity<CourseResponse> getCourseByCourseCode(@PathVariable String courseCode) {
-        return ResponseEntity.ok(courseService.getCourseByCourseCode(courseCode));
+    public ResponseEntity<Object> getCourseByCourseCode(@PathVariable String courseCode) {
+        return ResponseData.statusResponse(courseService.getCourseByCourseCode(courseCode), HttpStatus.OK, "success get course");
     }
 
-    @PostMapping
+    @PostMapping("/admin")
     @Operation(summary = "api to create course")
-    public ResponseEntity<CourseResponse> createCourse(@RequestBody CourseRequest courseRequest) {
-        return ResponseEntity.ok(courseService.createCourse(courseRequest));
+    public ResponseEntity<Object> createCourse(@RequestBody CourseRequest courseRequest) {
+        return ResponseData.statusResponse(courseService.createCourse(courseRequest), HttpStatus.OK, "success create course");
     }
 
-    @PutMapping("/{courseCode}")
+    @PutMapping("/admin/{courseCode}")
     @Operation(summary = "api to update course")
-    public ResponseEntity<CourseResponse> updateCourse(@PathVariable String courseCode, @RequestBody CourseRequest courseRequest) {
-        return ResponseEntity.ok(courseService.updateCourse(courseCode, courseRequest));
+    public ResponseEntity<Object> updateCourse(@PathVariable String courseCode, @RequestBody CourseRequest courseRequest) {
+        return ResponseData.statusResponse(courseService.updateCourse(courseCode, courseRequest), HttpStatus.OK, "success update course");
     }
 
-    @DeleteMapping("/{courseCode}")
+    @DeleteMapping("/admin/{courseCode}")
     @Operation(summary = "api to delete course")
-    public ResponseEntity deleteCourse(@PathVariable String courseCode) {
+    public ResponseEntity<Object> deleteCourse(@PathVariable String courseCode) {
         courseService.deleteCourse(courseCode);
-        return ResponseEntity.ok(null);
+        return ResponseData.statusResponse(null, HttpStatus.OK, "success delete course");
     }
 }
