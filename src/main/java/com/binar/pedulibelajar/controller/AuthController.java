@@ -1,6 +1,7 @@
 package com.binar.pedulibelajar.controller;
 
 import com.binar.pedulibelajar.dto.request.LoginRequest;
+import com.binar.pedulibelajar.dto.request.ResetPasswordRequest;
 import com.binar.pedulibelajar.dto.request.SignupRequest;
 import com.binar.pedulibelajar.dto.response.ResponseData;
 import com.binar.pedulibelajar.service.OTPService;
@@ -11,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@CrossOrigin("*")
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -54,7 +56,23 @@ public class AuthController {
     @Operation(summary = "api for user/admin to regenerate otp code")
     public ResponseEntity<Object> regenerateOtp(@RequestParam String email) {
 
-        otpService.createOTP(email);
+        userService.regenerateOtp(email);
         return ResponseData.statusResponse(null, HttpStatus.OK, "success generate otp");
+    }
+
+    @PostMapping("/reset-password/request")
+    @Operation(summary = "api for user/admin to request reset password")
+    public ResponseEntity<Object> requestResetPassword(@RequestParam String email) {
+
+        userService.generateLinkResetPassword(email);
+        return ResponseData.statusResponse(null, HttpStatus.OK, "success request reset password");
+    }
+
+    @PostMapping("/reset-password")
+    @Operation(summary = "api for user/admin to reset password")
+    public ResponseEntity<Object> resetPassword(@RequestParam String token, @RequestBody ResetPasswordRequest resetPasswordRequest) {
+
+        userService.resetPassword(token, resetPasswordRequest);
+        return ResponseData.statusResponse(null, HttpStatus.OK, "success reset password");
     }
 }
