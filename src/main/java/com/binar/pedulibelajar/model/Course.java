@@ -33,4 +33,7 @@ public class Course {
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Chapter> chapter;
 
+    @OneToMany(mappedBy = "course")
+    private List<Order> order;
+
 }
