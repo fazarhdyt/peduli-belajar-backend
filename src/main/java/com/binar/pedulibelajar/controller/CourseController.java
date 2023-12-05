@@ -11,19 +11,19 @@ import org.springframework.web.bind.annotation.*;
 
 @CrossOrigin("*")
 @RestController
-@RequestMapping("/api/course")
+@RequestMapping("/api")
 public class CourseController {
 
     @Autowired
     private CourseService courseService;
 
-    @GetMapping
+    @GetMapping("/course")
     @Operation(summary = "api to get all course")
     public ResponseEntity<Object> getAllCourses(){
         return ResponseData.statusResponse(courseService.getAllCourses(), HttpStatus.OK, "success get all course");
     }
 
-    @GetMapping("/{courseCode}")
+    @GetMapping("/course/{courseCode}")
     @Operation(summary = "api to get course by courseCode")
     public ResponseEntity<Object> getCourseByCourseCode(@PathVariable String courseCode) {
         return ResponseData.statusResponse(courseService.getCourseByCourseCode(courseCode), HttpStatus.OK, "success get course");
