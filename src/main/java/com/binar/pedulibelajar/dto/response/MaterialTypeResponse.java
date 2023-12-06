@@ -1,4 +1,4 @@
-package com.binar.pedulibelajar.dto.Response;
+package com.binar.pedulibelajar.dto.response;
 
 import lombok.Data;
 

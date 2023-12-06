@@ -1,6 +1,8 @@
-package com.binar.pedulibelajar.dto.Request;
+package com.binar.pedulibelajar.dto.request;
 
 import lombok.Data;
+
+import java.util.List;
 
 @Data
 public class CourseRequest {
@@ -13,4 +15,5 @@ public class CourseRequest {
     private double price;
     private String description;
     private String author;
+    private List<ChapterRequest> chapter;
 }
