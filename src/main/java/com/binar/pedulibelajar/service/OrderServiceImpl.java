@@ -22,8 +22,6 @@ public class OrderServiceImpl implements OrderService{
     @Autowired
     private CourseRepository courseRepository;
 
-    private double tax = 0.011;
-
     @Override
     public void order(OrderRequest orderRequest) {
 

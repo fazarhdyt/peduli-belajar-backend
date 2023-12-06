@@ -29,6 +29,12 @@ public class CourseController {
         return ResponseData.statusResponse(courseService.getCourseByCourseCode(courseCode), HttpStatus.OK, "success get course");
     }
 
+    @GetMapping("/course/order/{courseCode}")
+    @Operation(summary = "api to get order detail course")
+    public ResponseEntity<Object> getOrderDetailCourse(@PathVariable String courseCode) {
+        return ResponseData.statusResponse(courseService.getOrderDetailCourse(courseCode), HttpStatus.OK, "success get course");
+    }
+
     @PostMapping("/admin")
     @Operation(summary = "api to create course")
     public ResponseEntity<Object> createCourse(@RequestBody CourseRequest courseRequest) {

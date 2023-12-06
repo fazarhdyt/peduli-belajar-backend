@@ -2,22 +2,18 @@ package com.binar.pedulibelajar.service;
 
 import com.binar.pedulibelajar.dto.request.ChapterRequest;
 import com.binar.pedulibelajar.dto.request.SubjectRequest;
-import com.binar.pedulibelajar.dto.response.ChapterResponse;
-import com.binar.pedulibelajar.dto.response.CreateCourseResponse;
-import com.binar.pedulibelajar.dto.response.SubjectResponse;
-import com.binar.pedulibelajar.model.Chapter;
-import com.binar.pedulibelajar.model.Course;
+import com.binar.pedulibelajar.dto.response.*;
+import com.binar.pedulibelajar.model.*;
 import com.binar.pedulibelajar.dto.request.CourseRequest;
-import com.binar.pedulibelajar.dto.response.CourseResponse;
-import com.binar.pedulibelajar.model.Subject;
-import com.binar.pedulibelajar.model.SubjectType;
 import com.binar.pedulibelajar.repository.ChapterRepository;
 import com.binar.pedulibelajar.repository.CourseRepository;
 import com.binar.pedulibelajar.repository.SubjectRepository;
 import com.binar.pedulibelajar.repository.SubjectTypeRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.List;
@@ -95,6 +91,27 @@ public class CourseServiceImpl implements CourseService{
     public void deleteCourse(String courseCode) {
         courseRepository.findByCourseCode(courseCode).ifPresent(course ->
             courseRepository.delete(course));
+    }
+
+    @Override
+    public OrderDetailCourseResponse getOrderDetailCourse(String courseCode) {
+
+        Course course = courseRepository.findByCourseCode(courseCode)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "course not found"));
+
+        final double tax = 0.11;
+        double price = course.getPrice();
+        double calculateTax = tax * price;
+        double totalPrice = price + (price * tax);
+
+        return OrderDetailCourseResponse.builder()
+                .courseTitle(course.getName())
+                .category(course.getCategory())
+                .authorCourse(course.getAuthor())
+                .price(price)
+                .tax(calculateTax)
+                .totalPrice(totalPrice)
+                .build();
     }
 
     private CourseResponse mapToCourseResponse(Course course) {
