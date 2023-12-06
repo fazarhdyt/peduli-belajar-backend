@@ -1,4 +1,4 @@
-package com.binar.pedulibelajar;
+package com.binar.pedulibelajar.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.User;
