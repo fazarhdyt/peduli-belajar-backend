@@ -22,6 +22,8 @@ public class OrderServiceImpl implements OrderService{
     @Autowired
     private CourseRepository courseRepository;
 
+    private double tax = 0.011;
+
     @Override
     public void order(OrderRequest orderRequest) {
 
@@ -32,8 +34,8 @@ public class OrderServiceImpl implements OrderService{
         Order order = Order.builder()
                 .user(userRepository.findByEmail(orderRequest.getEmail())
                         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "user not found")))
-//                .course(courseRepository.findByCourseCode(orderRequest.getCourseCode())
-//                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "course not found")))
+                .course(courseRepository.findByCourseCode(orderRequest.getCourseCode())
+                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "course not found")))
                 .paymentMethod(orderRequest.getPaymentMethod())
                 .paid(true)
                 .build();
