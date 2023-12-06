@@ -1,14 +1,20 @@
 package com.binar.pedulibelajar.service;
 
-import com.binar.pedulibelajar.dto.Request.CourseRequest;
-import com.binar.pedulibelajar.dto.Response.CourseResponse;
+import com.binar.pedulibelajar.dto.request.CourseRequest;
+import com.binar.pedulibelajar.dto.response.CourseResponse;
+import com.binar.pedulibelajar.dto.response.CreateCourseResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
 public interface CourseService {
     List<CourseResponse> getAllCourses();
     CourseResponse getCourseByCourseCode(String courseCode);
-    CourseResponse createCourse(CourseRequest courseRequest);
-    CourseResponse updateCourse(String courseCode,  CourseRequest courseRequest);
+
+    Page<CourseResponse> getCourseByFilters(List<String> category, List<String> levels, List<String> types, Pageable pageable);
+
+    CreateCourseResponse createCourse(CourseRequest courseRequest);
+    CreateCourseResponse updateCourse(String courseCode,  CourseRequest courseRequest);
     void deleteCourse(String courseCode);
 }

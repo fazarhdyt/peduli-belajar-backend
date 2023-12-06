@@ -1,12 +1,24 @@
 package com.binar.pedulibelajar.service;
 
-import com.binar.pedulibelajar.model.Course;
-import com.binar.pedulibelajar.dto.Request.CourseRequest;
-import com.binar.pedulibelajar.dto.Response.CourseResponse;
+import com.binar.pedulibelajar.dto.request.ChapterRequest;
+import com.binar.pedulibelajar.dto.request.SubjectRequest;
+import com.binar.pedulibelajar.dto.response.ChapterResponse;
+import com.binar.pedulibelajar.dto.response.CreateCourseResponse;
+import com.binar.pedulibelajar.dto.response.SubjectResponse;
+import com.binar.pedulibelajar.model.*;
+import com.binar.pedulibelajar.dto.request.CourseRequest;
+import com.binar.pedulibelajar.dto.response.CourseResponse;
+import com.binar.pedulibelajar.repository.ChapterRepository;
 import com.binar.pedulibelajar.repository.CourseRepository;
+import com.binar.pedulibelajar.repository.SubjectRepository;
+import com.binar.pedulibelajar.repository.SubjectTypeRepository;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -17,29 +29,57 @@ public class CourseServiceImpl implements CourseService{
     @Autowired
     private CourseRepository courseRepository;
 
+    @Autowired
+    private ChapterRepository chapterRepository;
+
+    @Autowired
+    private SubjectRepository subjectRepository;
+
+    @Autowired
+    private SubjectTypeRepository subjectTypeRepository;
+
+    @Autowired
+    private ModelMapper modelMapper;
+
     @Override
     public List<CourseResponse> getAllCourses() {
-       List<Course> courses = courseRepository.findAll();
+        List<Course> courses = courseRepository.findAll();
         return courses.stream()
-                .map(this::mapToResponse)
+                .map(this::mapToCourseResponse)
                 .collect(Collectors.toList());
     }
 
     @Override
     public CourseResponse getCourseByCourseCode(String courseCode) {
         Optional<Course> course = courseRepository.findByCourseCode(courseCode);
-        return course.map(this::mapToResponse).get();
+        return course.map(this::mapToCourseResponse).get();
     }
 
     @Override
-    public CourseResponse createCourse(CourseRequest courseRequest) {
-        Course course = mapToEntity(courseRequest);
-        Course savedCourse = courseRepository.save(course);
-        return mapToResponse(savedCourse);
+    public Page<CourseResponse> getCourseByFilters(List<String> category, List<String> levels, List<String> types, Pageable pageable) {
+        Page<Course> courses = courseRepository.findAllByFilters(category, levels, types, pageable);
+        return courses.map(this::mapToCourseResponse);
     }
 
     @Override
-    public CourseResponse updateCourse(String courseCode, CourseRequest courseRequest) {
+    public CreateCourseResponse createCourse(CourseRequest courseRequest) {
+        Course course = courseRepository.save(mapToEntityCourse(courseRequest));
+
+        List<Chapter> chapters = course.getChapter();
+        for (Chapter chapter : chapters) {
+            chapter.setCourse(course);
+            chapterRepository.save(chapter);
+            List<Subject> subjects = chapter.getSubject();
+            for (Subject subject : subjects) {
+                subject.setChapter(chapter);
+                subjectRepository.save(subject);
+            }
+        }
+        return modelMapper.map(courseRequest, CreateCourseResponse.class);
+    }
+
+    @Override
+    public CreateCourseResponse updateCourse(String courseCode, CourseRequest courseRequest) {
         return courseRepository.findByCourseCode(courseCode)
                 .map(existingCourse -> {
                     existingCourse.setName(courseRequest.getName());
@@ -51,33 +91,59 @@ public class CourseServiceImpl implements CourseService{
                     existingCourse.setPrice(courseRequest.getPrice());
                     existingCourse.setAuthor(courseRequest.getAuthor());
                     Course updatedCourse = courseRepository.save(existingCourse);
-                    return mapToResponse(updatedCourse);
+                    return modelMapper.map(updatedCourse, CreateCourseResponse.class);
                 }).orElse(null);
     }
 
     @Override
     public void deleteCourse(String courseCode) {
         courseRepository.findByCourseCode(courseCode).ifPresent(course ->
-            courseRepository.delete(course));
+                courseRepository.delete(course));
     }
 
-    private CourseResponse mapToResponse(Course course) {
+    private CourseResponse mapToCourseResponse(Course course) {
         CourseResponse response = new CourseResponse();
-        response.setCode(course.hashCode());
-        response.setStatus("Succes");
+        response.setName(course.getName());
+        response.setCourseCode(course.getCourseCode());
+        response.setCategory(course.getCategory());
+        response.setType(course.getType());
+        response.setLevel(course.getLevel());
+        response.setPrice(course.getPrice());
+        response.setDescription(course.getDescription());
+        response.setAuthor(course.getAuthor());
+        List<ChapterResponse> chapterResponses = course.getChapter().stream()
+                .map(this::mapToChapterResponse)
+                .collect(Collectors.toList());
 
-        CourseResponse.CourseData responseData = new CourseResponse.CourseData();
-        responseData.setName(course.getName());
-        responseData.setCategory(course.getCategory());
-        responseData.setCourseCode(course.getCourseCode());
-        responseData.setType(course.getType());
-        responseData.setLevel(course.getLevel());
-        responseData.setPrice(course.getPrice());
-        response.setData(responseData);
+        response.setChapter(chapterResponses);
         return response;
     }
 
-    private Course mapToEntity(CourseRequest courseRequest) {
+    private ChapterResponse mapToChapterResponse(Chapter chapter) {
+        ChapterResponse chapterResponse = new ChapterResponse();
+        chapterResponse.setChapterNo(chapter.getChapterNo());
+        chapterResponse.setChapterTitle(chapter.getChapterTitle());
+
+        List<SubjectResponse> subjectResponses = chapter.getSubject().stream()
+                .map(this::mapToSubjectResponse)
+                .collect(Collectors.toList());
+
+        chapterResponse.setSubject(subjectResponses);
+
+        return chapterResponse;
+    }
+
+    private SubjectResponse mapToSubjectResponse(Subject subject) {
+        SubjectResponse subjectResponse = new SubjectResponse();
+        subjectResponse.setSubjectNo(subject.getSubjectNo());
+        subjectResponse.setVideoTitle(subject.getVideoTitle());
+        subjectResponse.setVideoLink(subject.getVideoLink());
+        subjectResponse.setSubjectType(subject.getSubjectType().getName());
+
+        return subjectResponse;
+    }
+
+    private Course mapToEntityCourse(CourseRequest courseRequest) {
         Course course = new Course();
         course.setName(courseRequest.getName());
         course.setCourseCode(courseRequest.getCourseCode());
@@ -87,6 +153,36 @@ public class CourseServiceImpl implements CourseService{
         course.setPrice(courseRequest.getPrice());
         course.setDescription(courseRequest.getDescription());
         course.setAuthor(courseRequest.getAuthor());
+        List<Chapter> chapter = courseRequest.getChapter().stream()
+                .map(this::mapToEntityChapter)
+                .collect(Collectors.toList());
+
+        course.setChapter(chapter);
         return course;
     }
+
+    private Chapter mapToEntityChapter(ChapterRequest chapterRequest) {
+        Chapter chapter = new Chapter();
+        chapter.setChapterNo(chapterRequest.getChapterNo());
+        chapter.setChapterTitle(chapterRequest.getChapterTitle());
+
+        List<Subject> subject = chapterRequest.getSubject().stream()
+                .map(this::mapToEntitySubject)
+                .collect(Collectors.toList());
+
+        chapter.setSubject(subject);
+
+        return chapter;
+    }
+    private Subject mapToEntitySubject(SubjectRequest subjectRequest) {
+        Subject subject = new Subject();
+        subject.setSubjectNo(subjectRequest.getSubjectNo());
+        subject.setVideoTitle(subjectRequest.getVideoTitle());
+        subject.setVideoLink(subjectRequest.getVideoLink());
+        SubjectType subjectType = subjectTypeRepository.findByName(subjectRequest.getSubjectType().getName())
+                .orElseThrow(() -> new EntityNotFoundException("SubjectType not found with name: " + subjectRequest.getSubjectType().getName()));
+        subject.setSubjectType(subjectType);
+        return subject;
+    }
+
 }
