@@ -81,7 +81,7 @@ public class CourseServiceImpl implements CourseService{
                     existingCourse.setCategory(courseRequest.getCategory());
                     existingCourse.setDescription(courseRequest.getDescription());
                     existingCourse.setPrice(courseRequest.getPrice());
-                    existingCourse.setAuthor(courseRequest.getAuthor());
+                    existingCourse.setAuthor(courseRequest.getTeacher());
                     Course updatedCourse = courseRepository.save(existingCourse);
                     return modelMapper.map(updatedCourse, CreateCourseResponse.class);
                 }).orElse(null);
@@ -123,7 +123,7 @@ public class CourseServiceImpl implements CourseService{
         response.setLevel(course.getLevel());
         response.setPrice(course.getPrice());
         response.setDescription(course.getDescription());
-        response.setAuthor(course.getAuthor());
+        response.setTeacher(course.getAuthor());
         List<ChapterResponse> chapterResponses = course.getChapter().stream()
                 .map(this::mapToChapterResponse)
                 .collect(Collectors.toList());
@@ -165,7 +165,7 @@ public class CourseServiceImpl implements CourseService{
         course.setLevel(courseRequest.getLevel());
         course.setPrice(courseRequest.getPrice());
         course.setDescription(courseRequest.getDescription());
-        course.setAuthor(courseRequest.getAuthor());
+        course.setAuthor(courseRequest.getTeacher());
         List<Chapter> chapter = courseRequest.getChapter().stream()
                 .map(this::mapToEntityChapter)
                 .collect(Collectors.toList());

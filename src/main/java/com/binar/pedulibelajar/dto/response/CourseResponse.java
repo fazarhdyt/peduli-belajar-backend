@@ -14,7 +14,7 @@ public class CourseResponse {
     private String level;
     private double price;
     private String description;
-    private String author;
+    private String teacher;
     private List<ChapterResponse> chapter;
 }
 

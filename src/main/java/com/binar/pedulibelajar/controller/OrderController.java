@@ -11,16 +11,22 @@ import org.springframework.web.bind.annotation.*;
 
 @CrossOrigin("*")
 @RestController
-@RequestMapping("/api/order")
+@RequestMapping("/api")
 public class OrderController {
 
     @Autowired
     private OrderService orderService;
 
-    @PostMapping
+    @PostMapping("/order")
     @Operation(summary = "api to user order course")
     public ResponseEntity<Object> orderCourse(@RequestBody OrderRequest orderRequest) {
         orderService.order(orderRequest);
         return ResponseData.statusResponse(null, HttpStatus.OK, "success order course");
+    }
+
+    @GetMapping("/admin/status-order")
+    @Operation(summary = "api to admin get status order user")
+    public ResponseEntity<Object> getStatusOrder() {
+        return ResponseData.statusResponse(orderService.getStatusOrders(), HttpStatus.OK, "success get status order course");
     }
 }

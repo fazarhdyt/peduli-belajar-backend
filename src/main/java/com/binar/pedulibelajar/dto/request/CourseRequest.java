@@ -14,6 +14,6 @@ public class CourseRequest {
     private String level;
     private double price;
     private String description;
-    private String author;
+    private String teacher;
     private List<ChapterRequest> chapter;
 }

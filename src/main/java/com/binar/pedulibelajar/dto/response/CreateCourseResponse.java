@@ -12,5 +12,5 @@ public class CreateCourseResponse {
     private String level;
     private Long price;
     private String description;
-    private String author;
+    private String teacher;
 }
