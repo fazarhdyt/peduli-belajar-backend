@@ -28,7 +28,7 @@ public class Course {
     private String level;
     private double price;
     private String description;
-    private String author;
+    private String teacher;
 
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Chapter> chapter;
