@@ -1,5 +1,6 @@
 package com.binar.pedulibelajar.service;
 
+import com.binar.pedulibelajar.dto.request.EditProfileRequest;
 import com.binar.pedulibelajar.dto.request.LoginRequest;
 import com.binar.pedulibelajar.dto.request.SignupRequest;
 import com.binar.pedulibelajar.dto.response.JwtResponse;
@@ -150,5 +151,16 @@ public class UserServiceImpl implements UserService {
                     otpService.deleteByEmail(user.getEmail());
                 });
     }
+
+    @Override
+    public User editProfile(String email, EditProfileRequest editProfileRequest) {
+        User existingUser = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        modelMapper.map(editProfileRequest, existingUser);
+
+        return userRepository.save(existingUser);
+    }
+
 
 }
