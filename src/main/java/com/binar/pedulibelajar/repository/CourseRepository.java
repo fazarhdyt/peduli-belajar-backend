@@ -14,12 +14,12 @@ import java.util.Optional;
 public interface CourseRepository extends JpaRepository<Course, String> {
 
     Optional<Course> findByCourseCode(String courseCode);
-
     @Query("SELECT c FROM Course c WHERE " +
-            "(:category IS NULL OR c.category IN :category) AND " +
-            "(:level IS NULL OR c.level IN :level) AND " +
-            "(:type IS NULL OR c.type IN :type)")
+            "(:category IS NULL OR c.category IN (:category)) AND " +
+            "(:level IS NULL OR c.level IN (:level)) AND " +
+            "(:type IS NULL OR c.type IN (:type))")
     Page<Course> findAllByFilters(@Param("category") List<String> category,
                                   @Param("level") List<String> level,
                                   @Param("type") List<String> type, Pageable pageable);
+
 }
