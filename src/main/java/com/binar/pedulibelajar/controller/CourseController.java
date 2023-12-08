@@ -37,10 +37,17 @@ public class CourseController {
     @Operation(summary = "api to get course by filter")
     public ResponseEntity<Page<CourseResponse>> getCoursesByFilters(
             @RequestParam(name = "category", required = false) List<String> category,
-            @RequestParam(name = "levels", required = false) List<String> levels,
-            @RequestParam(name = "types", required = false) List<String> types,
+            @RequestParam(name = "level", required = false) List<String> level,
+            @RequestParam(name = "type", required = false) List<String> type,
             Pageable pageable) {
-        Page<CourseResponse> courses = courseService.getCourseByFilters(category, levels, types, pageable);
+
+        if (category != null && category.isEmpty() &&
+                level != null && level.isEmpty() &&
+                type != null && type.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+
+        Page<CourseResponse> courses = courseService.getCourseByFilters(category, level, type, pageable);
         return new ResponseEntity<>(courses, HttpStatus.OK);
     }
 
