@@ -1,12 +1,12 @@
 package com.binar.pedulibelajar.service;
 
 import com.binar.pedulibelajar.dto.request.ChapterRequest;
+import com.binar.pedulibelajar.dto.request.CourseRequest;
 import com.binar.pedulibelajar.dto.request.SubjectRequest;
 import com.binar.pedulibelajar.dto.response.ChapterResponse;
 import com.binar.pedulibelajar.dto.response.CreateCourseResponse;
 import com.binar.pedulibelajar.dto.response.SubjectResponse;
 import com.binar.pedulibelajar.model.*;
-import com.binar.pedulibelajar.dto.request.CourseRequest;
 import com.binar.pedulibelajar.dto.response.CourseResponse;
 import com.binar.pedulibelajar.repository.ChapterRepository;
 import com.binar.pedulibelajar.repository.CourseRepository;
@@ -24,7 +24,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-public class CourseServiceImpl implements CourseService{
+public class CourseServiceImpl implements CourseService {
 
     @Autowired
     private CourseRepository courseRepository;
@@ -82,14 +82,14 @@ public class CourseServiceImpl implements CourseService{
     public CreateCourseResponse updateCourse(String courseCode, CourseRequest courseRequest) {
         return courseRepository.findByCourseCode(courseCode)
                 .map(existingCourse -> {
-                    existingCourse.setName(courseRequest.getName());
+                    existingCourse.setTitle(courseRequest.getTitle());
                     existingCourse.setCourseCode(courseRequest.getCourseCode());
                     existingCourse.setLevel(courseRequest.getLevel());
                     existingCourse.setType(courseRequest.getType());
                     existingCourse.setCategory(courseRequest.getCategory());
                     existingCourse.setDescription(courseRequest.getDescription());
                     existingCourse.setPrice(courseRequest.getPrice());
-                    existingCourse.setAuthor(courseRequest.getAuthor());
+                    existingCourse.setTeacher(courseRequest.getTeacher());
                     Course updatedCourse = courseRepository.save(existingCourse);
                     return modelMapper.map(updatedCourse, CreateCourseResponse.class);
                 }).orElse(null);
@@ -103,14 +103,14 @@ public class CourseServiceImpl implements CourseService{
 
     private CourseResponse mapToCourseResponse(Course course) {
         CourseResponse response = new CourseResponse();
-        response.setName(course.getName());
+        response.setTitle(course.getTitle());
         response.setCourseCode(course.getCourseCode());
         response.setCategory(course.getCategory());
         response.setType(course.getType());
         response.setLevel(course.getLevel());
         response.setPrice(course.getPrice());
         response.setDescription(course.getDescription());
-        response.setAuthor(course.getAuthor());
+        response.setTeacher(course.getTeacher());
         List<ChapterResponse> chapterResponses = course.getChapter().stream()
                 .map(this::mapToChapterResponse)
                 .collect(Collectors.toList());
@@ -145,14 +145,14 @@ public class CourseServiceImpl implements CourseService{
 
     private Course mapToEntityCourse(CourseRequest courseRequest) {
         Course course = new Course();
-        course.setName(courseRequest.getName());
+        course.setTitle(courseRequest.getTitle());
         course.setCourseCode(courseRequest.getCourseCode());
         course.setCategory(courseRequest.getCategory());
         course.setType(courseRequest.getType());
         course.setLevel(courseRequest.getLevel());
         course.setPrice(courseRequest.getPrice());
         course.setDescription(courseRequest.getDescription());
-        course.setAuthor(courseRequest.getAuthor());
+        course.setTeacher(courseRequest.getTeacher());
         List<Chapter> chapter = courseRequest.getChapter().stream()
                 .map(this::mapToEntityChapter)
                 .collect(Collectors.toList());

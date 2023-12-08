@@ -13,8 +13,10 @@ public interface CourseService {
     CourseResponse getCourseByCourseCode(String courseCode);
 
     Page<CourseResponse> getCourseByFilters(List<String> category, List<String> levels, List<String> types, Pageable pageable);
+    //Page<CourseResponse> getCourseByFilters(List<ECategory> category, List<ELevel> level, List<EType> type, Pageable pageable);
 
     CreateCourseResponse createCourse(CourseRequest courseRequest);
     CreateCourseResponse updateCourse(String courseCode,  CourseRequest courseRequest);
     void deleteCourse(String courseCode);
+
 }
