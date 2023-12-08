@@ -21,14 +21,14 @@ public class Course {
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
     private String id;
 
-    private String name;
+    private String title;
     private String courseCode;
     private String category;
     private String type;
     private String level;
     private double price;
     private String description;
-    private String author;
+    private String teacher;
 
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
     private List<Chapter> chapter;
