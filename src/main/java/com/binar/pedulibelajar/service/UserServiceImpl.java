@@ -158,7 +158,6 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         modelMapper.map(editProfileRequest, existingUser);
-
         return userRepository.save(existingUser);
     }
 
