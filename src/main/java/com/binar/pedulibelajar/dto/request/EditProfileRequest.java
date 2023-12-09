@@ -1,6 +1,7 @@
 package com.binar.pedulibelajar.dto.request;
 
 import lombok.Data;
+import org.springframework.web.multipart.MultipartFile;
 
 @Data
 public class EditProfileRequest {
@@ -9,7 +10,7 @@ public class EditProfileRequest {
 
     private String noTelp;
 
-    private String profilePicture;
+    private MultipartFile profilePicture;
 
     private String city;
 
