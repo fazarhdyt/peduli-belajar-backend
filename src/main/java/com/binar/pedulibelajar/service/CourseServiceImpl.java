@@ -74,17 +74,17 @@ public class CourseServiceImpl implements CourseService{
     public CreateCourseResponse updateCourse(String courseCode, CourseRequest courseRequest) {
         return courseRepository.findByCourseCode(courseCode)
                 .map(existingCourse -> {
-                    existingCourse.setName(courseRequest.getName());
+                    existingCourse.setTitle(courseRequest.getTitle());
                     existingCourse.setCourseCode(courseRequest.getCourseCode());
                     existingCourse.setLevel(courseRequest.getLevel());
                     existingCourse.setType(courseRequest.getType());
                     existingCourse.setCategory(courseRequest.getCategory());
                     existingCourse.setDescription(courseRequest.getDescription());
                     existingCourse.setPrice(courseRequest.getPrice());
-                    existingCourse.setAuthor(courseRequest.getTeacher());
+                    existingCourse.setTeacher(courseRequest.getTeacher());
                     Course updatedCourse = courseRepository.save(existingCourse);
                     return modelMapper.map(updatedCourse, CreateCourseResponse.class);
-                }).orElse(null);
+                }).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "course not found"));
     }
 
     @Override
@@ -105,9 +105,9 @@ public class CourseServiceImpl implements CourseService{
         double totalPrice = price + (price * tax);
 
         return OrderDetailCourseResponse.builder()
-                .courseTitle(course.getName())
+                .courseTitle(course.getTitle())
                 .category(course.getCategory())
-                .authorCourse(course.getAuthor())
+                .authorCourse(course.getTeacher())
                 .price(price)
                 .tax(calculateTax)
                 .totalPrice(totalPrice)
@@ -116,14 +116,14 @@ public class CourseServiceImpl implements CourseService{
 
     private CourseResponse mapToCourseResponse(Course course) {
         CourseResponse response = new CourseResponse();
-        response.setName(course.getName());
+        response.setTitle(course.getTitle());
         response.setCourseCode(course.getCourseCode());
         response.setCategory(course.getCategory());
         response.setType(course.getType());
         response.setLevel(course.getLevel());
         response.setPrice(course.getPrice());
         response.setDescription(course.getDescription());
-        response.setTeacher(course.getAuthor());
+        response.setTeacher(course.getTeacher());
         List<ChapterResponse> chapterResponses = course.getChapter().stream()
                 .map(this::mapToChapterResponse)
                 .collect(Collectors.toList());
@@ -158,14 +158,14 @@ public class CourseServiceImpl implements CourseService{
 
     private Course mapToEntityCourse(CourseRequest courseRequest) {
         Course course = new Course();
-        course.setName(courseRequest.getName());
+        course.setTitle(courseRequest.getTitle());
         course.setCourseCode(courseRequest.getCourseCode());
         course.setCategory(courseRequest.getCategory());
         course.setType(courseRequest.getType());
         course.setLevel(courseRequest.getLevel());
         course.setPrice(courseRequest.getPrice());
         course.setDescription(courseRequest.getDescription());
-        course.setAuthor(courseRequest.getTeacher());
+        course.setTeacher(courseRequest.getTeacher());
         List<Chapter> chapter = courseRequest.getChapter().stream()
                 .map(this::mapToEntityChapter)
                 .collect(Collectors.toList());

@@ -21,7 +21,7 @@ public class Course {
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
     private String id;
 
-    private String name;
+    private String title;
     private String courseCode;
     private String category;
     private String type;
@@ -35,5 +35,8 @@ public class Course {
 
     @OneToMany(mappedBy = "course")
     private List<Order> order;
+
+    @OneToMany(mappedBy = "course")
+    private List<UserCourse> userCourses;
 
 }
