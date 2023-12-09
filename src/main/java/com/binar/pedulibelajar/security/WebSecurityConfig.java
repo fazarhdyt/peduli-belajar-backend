@@ -35,14 +35,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.csrf().disable()
+        http.cors().disable().csrf().disable()
                 .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .authorizeRequests()
-                .antMatchers("/api/auth/**", "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/api/course/",
+                .antMatchers("/api/auth/**", "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/api/course/**",
                         "/api/auth/reset-password", "/api/auth/reset-password/**")
                 .permitAll()
-                 .antMatchers("/api/course/admin")
+                .antMatchers("/api/order")
+                .hasAuthority(ERole.USER.name())
+                 .antMatchers("/api/admin/**")
                  .hasAuthority(ERole.ADMIN.name())
                 .anyRequest()
                 .authenticated();

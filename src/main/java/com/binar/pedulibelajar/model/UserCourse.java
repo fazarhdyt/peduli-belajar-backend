@@ -4,23 +4,19 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
-import java.util.Date;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "orders")
-public class Order {
+public class UserCourse {
 
     @Id
-    @GeneratedValue(generator = "UUID")
-    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
@@ -30,10 +26,7 @@ public class Order {
     @JoinColumn(name = "course_id")
     private Course course;
 
-    private boolean paid;
-
-    private String paymentMethod;
-
-    private Date paymentDate;
-
+    private String chapter;
+    private String subject;
+    private boolean done;
 }

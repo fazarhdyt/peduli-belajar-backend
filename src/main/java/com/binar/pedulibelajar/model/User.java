@@ -46,6 +46,9 @@ public class User implements UserDetails{
     @OneToMany(mappedBy = "user")
     private List<Order> order;
 
+    @OneToMany(mappedBy = "user")
+    private List<UserCourse> userCourses;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         SimpleGrantedAuthority authority = new SimpleGrantedAuthority(role.name());
