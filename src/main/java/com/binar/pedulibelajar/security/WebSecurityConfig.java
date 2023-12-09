@@ -44,8 +44,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .permitAll()
                 .antMatchers("/api/order")
                 .hasAuthority(ERole.USER.name())
-                 .antMatchers("/api/admin/**")
-                 .hasAuthority(ERole.ADMIN.name())
+                .antMatchers("/api/admin/**")
+                .hasAuthority(ERole.ADMIN.name())
                 .anyRequest()
                 .authenticated();
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);

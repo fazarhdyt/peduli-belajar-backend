@@ -1,5 +1,6 @@
 package com.binar.pedulibelajar.service;
 
+import com.binar.pedulibelajar.dto.request.EditProfileRequest;
 import com.binar.pedulibelajar.dto.request.LoginRequest;
 import com.binar.pedulibelajar.dto.request.ResetPasswordRequest;
 import com.binar.pedulibelajar.dto.request.SignupRequest;
@@ -65,7 +66,7 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByEmail(loginRequest.getEmail())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "user not found"));
 
-        if(!user.isActive()) {
+        if (!user.isActive()) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "account has not been verified");
         }
 
@@ -77,9 +78,9 @@ public class UserServiceImpl implements UserService {
         User userDetails = (User) authentication.getPrincipal();
         String jwt = jwtUtils.generateJwtToken(authentication);
 
-//        List<String> roles = userDetails.getAuthorities().stream()
-//                .map(GrantedAuthority::getAuthority)
-//                .collect(Collectors.toList());
+        // List<String> roles = userDetails.getAuthorities().stream()
+        // .map(GrantedAuthority::getAuthority)
+        // .collect(Collectors.toList());
 
         return new JwtResponse(jwt,
                 userDetails.getEmail(),
@@ -89,9 +90,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Async
-    public User registerUser(SignupRequest signupRequest){
+    public User registerUser(SignupRequest signupRequest) {
         boolean userExist = userRepository.findByEmail(signupRequest.getEmail()).isPresent();
-        if(userExist){
+        if (userExist) {
             throw new RuntimeException(
                     String.format("user with email '%s' already exist", signupRequest.getEmail()));
         }
@@ -113,9 +114,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Async
-    public User registerAdmin(SignupRequest signupRequest){
+    public User registerAdmin(SignupRequest signupRequest) {
         boolean userExist = userRepository.findByEmail(signupRequest.getEmail()).isPresent();
-        if(userExist){
+        if (userExist) {
             throw new RuntimeException(
                     String.format("user with email '%s' already exist", signupRequest.getEmail()));
         }
@@ -138,11 +139,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public void verifyAccount(String email, String otp) {
 
-        if(!userRepository.existsByEmail(email)) {
+        if (!userRepository.existsByEmail(email)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User not found");
         }
 
-        if(!otpRepository.existsByOtp(otp)) {
+        if (!otpRepository.existsByOtp(otp)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid OTP code");
         }
 
@@ -180,7 +181,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void resetPassword(String token, ResetPasswordRequest resetPasswordRequest) {
 
-        if(!tokenResetPasswordRepository.existsByToken(token)) {
+        if (!tokenResetPasswordRepository.existsByToken(token)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "link not valid");
         }
 
@@ -188,7 +189,7 @@ public class UserServiceImpl implements UserService {
                 .map(resetPasswordService::verifyExpiration)
                 .map(TokenResetPassword::getUser)
                 .ifPresent(user -> {
-                    if(!resetPasswordRequest.getPassword().equals(resetPasswordRequest.getConfirmPassword())) {
+                    if (!resetPasswordRequest.getPassword().equals(resetPasswordRequest.getConfirmPassword())) {
                         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "password not match");
                     }
                     String encodedPassword = bCryptPasswordEncoder.encode(resetPasswordRequest.getPassword());
@@ -196,6 +197,15 @@ public class UserServiceImpl implements UserService {
                     userRepository.save(user);
                     resetPasswordService.deleteByEmail(user.getEmail());
                 });
+    }
+
+    @Override
+    public User editProfile(String email, EditProfileRequest editProfileRequest) {
+        User existingUser = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        modelMapper.map(editProfileRequest, existingUser);
+        return userRepository.save(existingUser);
     }
 
 }

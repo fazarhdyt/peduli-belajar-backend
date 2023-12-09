@@ -18,7 +18,7 @@ import com.binar.pedulibelajar.repository.UserRepository;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
-public class OTPServiceImpl implements OTPService{
+public class OTPServiceImpl implements OTPService {
 
     @Value("${pedulibelajar.otpExpirationMs}")
     private Long otpDurationMs;

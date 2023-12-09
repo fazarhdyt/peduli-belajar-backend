@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class CreateCourseResponse {
 
-    private String name;
+    private String title;
     private String courseCode;
     private String category;
     private String type;

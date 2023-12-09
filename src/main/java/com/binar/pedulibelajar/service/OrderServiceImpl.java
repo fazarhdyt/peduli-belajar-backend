@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class OrderServiceImpl implements OrderService{
+public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private OrderRepository orderRepository;
@@ -36,7 +36,7 @@ public class OrderServiceImpl implements OrderService{
     @Override
     public void order(OrderRequest orderRequest) {
 
-        if(orderRepository.existsUserOrder(orderRequest.getEmail(), orderRequest.getCourseCode())) {
+        if (orderRepository.existsUserOrder(orderRequest.getEmail(), orderRequest.getCourseCode())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "you have purchased this course");
         }
 
@@ -98,8 +98,8 @@ public class OrderServiceImpl implements OrderService{
 
     private void storeToUserCourse(Order order) {
 
-        for (Chapter chapter: order.getCourse().getChapter()) {
-            for (Subject subject: chapter.getSubject()) {
+        for (Chapter chapter : order.getCourse().getChapter()) {
+            for (Subject subject : chapter.getSubject()) {
                 UserCourse userCourse = new UserCourse();
                 userCourse.setCourse(order.getCourse());
                 userCourse.setUser(order.getUser());
