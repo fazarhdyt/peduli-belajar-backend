@@ -24,7 +24,13 @@ public class OrderController {
         return ResponseData.statusResponse(null, HttpStatus.OK, "success order course");
     }
 
-    @GetMapping("/admin/status-order")
+    @GetMapping("/order/payment-history/{email}")
+    @Operation(summary = "api to user get payment history")
+    public ResponseEntity<Object> getPaymentHistory(@PathVariable String email) {
+        return ResponseData.statusResponse(orderService.getPaymentHistory(email), HttpStatus.OK, "success get payment history");
+    }
+
+    @GetMapping("/admin/order/status-order")
     @Operation(summary = "api to admin get status order user")
     public ResponseEntity<Object> getStatusOrder() {
         return ResponseData.statusResponse(orderService.getStatusOrders(), HttpStatus.OK, "success get status order course");
