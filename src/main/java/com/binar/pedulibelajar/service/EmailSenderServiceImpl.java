@@ -15,7 +15,7 @@ import java.time.format.DateTimeFormatter;
 
 @Service
 @Slf4j
-public class EmailSenderServiceImpl implements EmailSenderService{
+public class EmailSenderServiceImpl implements EmailSenderService {
 
     @Autowired
     private JavaMailSender mailSender;
@@ -46,7 +46,8 @@ public class EmailSenderServiceImpl implements EmailSenderService{
         ZonedDateTime zonedDateTime = token.getExpiryDate().atZone(ZoneId.systemDefault());
 
         String subject = "Reset Password";
-        String body = "Your link to reset password : localhost:3000/reset-password?token=" + token.getToken() + " valid until " + formatter.format(zonedDateTime);
+        String body = "Your link to reset password : localhost:3000/reset-password?token=" + token.getToken()
+                + " valid until " + formatter.format(zonedDateTime);
 
         message.setTo(toEmail);
         message.setText(body);

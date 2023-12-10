@@ -18,7 +18,7 @@ import java.util.List;
 @Table(name = "users", uniqueConstraints = {
         @UniqueConstraint(columnNames = "email")
 })
-public class User implements UserDetails{
+public class User implements UserDetails {
 
     @Id
     @GeneratedValue(generator = "UUID")
@@ -40,11 +40,20 @@ public class User implements UserDetails{
 
     private boolean active;
 
+    private String profilePicture;
+
+    private String city;
+
+    private String country;
+
     @Enumerated(EnumType.STRING)
     private ERole role;
 
     @OneToMany(mappedBy = "user")
     private List<Order> order;
+
+    @OneToMany(mappedBy = "user")
+    private List<UserCourse> userCourses;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
