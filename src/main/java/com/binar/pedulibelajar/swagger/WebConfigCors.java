@@ -19,7 +19,7 @@ public class WebConfigCors extends WebMvcConfigurerAdapter {
                                 HttpHeaders.AUTHORIZATION,
                                 HttpHeaders.CONTENT_TYPE,
                                 HttpHeaders.ACCEPT)
-                        .allowCredentials(true)
+//                        .allowCredentials(true)
                         .allowedMethods(
                                 HttpMethod.GET.name(),
                                 HttpMethod.POST.name(),
