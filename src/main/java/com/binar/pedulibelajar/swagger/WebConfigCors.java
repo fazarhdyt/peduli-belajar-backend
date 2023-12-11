@@ -1,7 +1,8 @@
 package com.binar.pedulibelajar.swagger;
 
+import org.apache.http.HttpHeaders;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpHeaders;
+//import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -19,7 +20,7 @@ public class WebConfigCors extends WebMvcConfigurerAdapter {
                                 HttpHeaders.AUTHORIZATION,
                                 HttpHeaders.CONTENT_TYPE,
                                 HttpHeaders.ACCEPT)
-//                        .allowCredentials(true)
+                        .allowCredentials(true)
                         .allowedMethods(
                                 HttpMethod.GET.name(),
                                 HttpMethod.POST.name(),
