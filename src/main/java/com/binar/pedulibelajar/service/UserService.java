@@ -24,4 +24,6 @@ public interface UserService {
     void resetPassword(String token, ResetPasswordRequest resetPasswordRequest);
 
     User editProfile(String email, EditProfileRequest editProfileRequest);
+
+    void updatePassword(); //bikin dto request untuk update password
 }

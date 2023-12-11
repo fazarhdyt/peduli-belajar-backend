@@ -208,4 +208,9 @@ public class UserServiceImpl implements UserService {
         return userRepository.save(existingUser);
     }
 
+    @Override
+    public void updatePassword() {
+        //bikin logic update password di sini
+    }
+
 }
