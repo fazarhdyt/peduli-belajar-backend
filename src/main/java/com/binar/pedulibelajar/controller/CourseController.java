@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-//@CrossOrigin("*")
+@CrossOrigin("https://localhost:5173")
 @RestController
 @RequestMapping("/api")
 public class CourseController {
