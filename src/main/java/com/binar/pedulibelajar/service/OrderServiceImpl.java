@@ -47,7 +47,7 @@ public class OrderServiceImpl implements OrderService {
                         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "course not found")))
                 .paymentMethod(orderRequest.getPaymentMethod())
                 .paymentDate(new Date())
-                .paid(true)
+                .paid(false)
                 .build();
 
         orderRepository.save(order);
