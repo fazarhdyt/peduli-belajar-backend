@@ -1,9 +1,8 @@
 package com.binar.pedulibelajar.swagger;
 
+import io.netty.handler.codec.http.HttpMethod;
 import org.apache.http.HttpHeaders;
 import org.springframework.context.annotation.Configuration;
-//import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
