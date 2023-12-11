@@ -25,23 +25,26 @@ public class AuthController {
 
     @PostMapping("/signup")
     @Operation(summary = "api for user to register")
-    public ResponseEntity<Object> registerUser(@RequestBody SignupRequest signupRequest){
+    public ResponseEntity<Object> registerUser(@RequestBody SignupRequest signupRequest) {
 
-        return ResponseData.statusResponse(userService.registerUser(signupRequest), HttpStatus.CREATED, "User registered successfully!");
+        return ResponseData.statusResponse(userService.registerUser(signupRequest), HttpStatus.CREATED,
+                "User registered successfully!");
     }
 
     @PostMapping("/signup/admin")
     @Operation(summary = "api for admin to register")
-    public ResponseEntity<Object> registerAdmin(@RequestBody SignupRequest signupRequest){
+    public ResponseEntity<Object> registerAdmin(@RequestBody SignupRequest signupRequest) {
 
-        return ResponseData.statusResponse(userService.registerAdmin(signupRequest), HttpStatus.CREATED, "User registered successfully!");
+        return ResponseData.statusResponse(userService.registerAdmin(signupRequest), HttpStatus.CREATED,
+                "User registered successfully!");
     }
 
     @PostMapping("/signin")
     @Operation(summary = "api for user/admin to login")
-    public ResponseEntity<Object> authenticateUser(@RequestBody LoginRequest loginRequest){
+    public ResponseEntity<Object> authenticateUser(@RequestBody LoginRequest loginRequest) {
 
-        return ResponseData.statusResponse(userService.authenticateUser(loginRequest), HttpStatus.OK, "user login successfully!");
+        return ResponseData.statusResponse(userService.authenticateUser(loginRequest), HttpStatus.OK,
+                "user login successfully!");
     }
 
     @PostMapping("/verify")
@@ -70,7 +73,8 @@ public class AuthController {
 
     @PostMapping("/reset-password")
     @Operation(summary = "api for user/admin to reset password")
-    public ResponseEntity<Object> resetPassword(@RequestParam String token, @RequestBody ResetPasswordRequest resetPasswordRequest) {
+    public ResponseEntity<Object> resetPassword(@RequestParam String token,
+            @RequestBody ResetPasswordRequest resetPasswordRequest) {
 
         userService.resetPassword(token, resetPasswordRequest);
         return ResponseData.statusResponse(null, HttpStatus.OK, "success reset password");
