@@ -14,12 +14,12 @@ public class WebConfigCors extends WebMvcConfigurerAdapter {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("https://localhost:5173")
+                        .allowedOrigins("*")
                         .allowedHeaders(
                                 HttpHeaders.AUTHORIZATION,
                                 HttpHeaders.CONTENT_TYPE,
                                 HttpHeaders.ACCEPT)
-                        .allowCredentials(true)
+//                        .allowCredentials(true)
                         .allowedMethods(
                                 HttpMethod.GET.name(),
                                 HttpMethod.POST.name(),
