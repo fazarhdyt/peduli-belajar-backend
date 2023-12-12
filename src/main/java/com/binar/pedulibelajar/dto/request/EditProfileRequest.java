@@ -10,8 +10,6 @@ public class EditProfileRequest {
 
     private String noTelp;
 
-    private MultipartFile profilePicture;
-
     private String city;
 
     private String country;
