@@ -36,10 +36,6 @@ public class User implements UserDetails{
 
     @NotBlank(message = "phone number is required")
     private String noTelp;
-
-    @NotBlank(message = "profile picture is required")
-    private String profilePicture;
-
     @NotBlank(message = "city is required")
     private String city;
 
