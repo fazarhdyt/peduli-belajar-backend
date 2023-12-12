@@ -8,10 +8,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Data
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 public class UploadImageRequest {
+
     private MultipartFile multipartFile;
     private String fileName;
-    private String uploaderName;
 }
