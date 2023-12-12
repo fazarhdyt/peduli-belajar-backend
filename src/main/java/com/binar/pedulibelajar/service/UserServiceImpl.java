@@ -160,6 +160,4 @@ public class UserServiceImpl implements UserService {
         modelMapper.map(editProfileRequest, existingUser);
         return userRepository.save(existingUser);
     }
-
-
 }
