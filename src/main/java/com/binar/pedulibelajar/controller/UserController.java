@@ -33,9 +33,9 @@ public class UserController {
         return ResponseEntity.ok(updatedUser);
     }
 
-    @PostMapping("/upload-image")
-    public String uploadImage(@ModelAttribute UploadImageRequest request) throws IOException{
-        log.info("uploader name : {}", request.getUploaderName());
+    @PostMapping(value = "/upload-image")
+    @Operation(summary = "api to upload image(profile picture)")
+    public String uploadImage(@ModelAttribute UploadImageRequest request) throws IOException {
         log.info("file name : {}", request.getFileName());
         return Optional.ofNullable(request)
                 .map(UploadImageRequest::getMultipartFile)
@@ -43,4 +43,5 @@ public class UserController {
                 .map(file -> cloudinaryService.upload(file))
                 .orElse("Upload failed");
     }
+
 }
