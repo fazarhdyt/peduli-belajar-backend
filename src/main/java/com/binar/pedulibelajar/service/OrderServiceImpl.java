@@ -117,10 +117,14 @@ public class OrderServiceImpl implements OrderService {
 
     private PaymentHistoryResponse mapToPaymentHistoryResponse(Order order) {
         PaymentHistoryResponse response = new PaymentHistoryResponse();
+        response.setCourseCode(order.getCourse().getCourseCode());
+        response.setThumbnail(order.getCourse().getThumbnail());
+        response.setModul(order.getCourse().getChapter().size());
         response.setCategory(order.getCourse().getCategory());
         response.setTitle(order.getCourse().getTitle());
         response.setTeacher(order.getCourse().getTeacher());
         response.setLevel(order.getCourse().getLevel());
+        response.setRating(order.getCourse().getRating());
         response.setStatus(order.isPaid() ? "Paid" : "Waiting for Payment");
         return response;
     }
