@@ -1,8 +1,10 @@
 package com.binar.pedulibelajar.service;
 
 import com.binar.pedulibelajar.dto.request.OrderRequest;
+import com.binar.pedulibelajar.dto.response.OrderDetailCourseResponse;
 import com.binar.pedulibelajar.dto.response.PaymentHistoryResponse;
 import com.binar.pedulibelajar.dto.response.StatusOrderResponse;
+import com.binar.pedulibelajar.enumeration.Type;
 import com.binar.pedulibelajar.model.*;
 import com.binar.pedulibelajar.repository.CourseRepository;
 import com.binar.pedulibelajar.repository.OrderRepository;
@@ -10,6 +12,7 @@ import com.binar.pedulibelajar.repository.UserCourseRepository;
 import com.binar.pedulibelajar.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -36,12 +39,14 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public void order(OrderRequest orderRequest) {
 
-        if (orderRepository.existsUserOrder(orderRequest.getEmail(), orderRequest.getCourseCode())) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        if (orderRepository.existsUserOrder(email, orderRequest.getCourseCode())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "you have purchased this course");
         }
 
         Order order = Order.builder()
-                .user(userRepository.findByEmail(orderRequest.getEmail())
+                .user(userRepository.findByEmail(email)
                         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "user not found")))
                 .course(courseRepository.findByCourseCode(orderRequest.getCourseCode())
                         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "course not found")))
@@ -59,19 +64,43 @@ public class OrderServiceImpl implements OrderService {
     public List<StatusOrderResponse> getStatusOrders() {
 
         return orderRepository.findAll().stream()
-                .filter(order -> order.getCourse().getType().equalsIgnoreCase("PREMIUM"))
+                .filter(order -> order.getCourse().getType().equals(Type.PREMIUM))
                 .map(this::mapToStatusOrderResponse)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<PaymentHistoryResponse> getPaymentHistory(String email) {
+    public List<PaymentHistoryResponse> getPaymentHistory() {
+
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "user not found"));
 
         return user.getOrder().stream()
                 .map(this::mapToPaymentHistoryResponse)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public OrderDetailCourseResponse getOrderDetailCourse(String courseCode) {
+
+        Course course = courseRepository.findByCourseCode(courseCode)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "course not found"));
+
+        final double tax = 0.11;
+        double price = course.getPrice();
+        double calculateTax = tax * price;
+        double totalPrice = price + (price * tax);
+
+        return OrderDetailCourseResponse.builder()
+                .courseTitle(course.getTitle())
+                .category(course.getCategory())
+                .authorCourse(course.getTeacher())
+                .price(price)
+                .tax(calculateTax)
+                .totalPrice(totalPrice)
+                .build();
     }
 
     private StatusOrderResponse mapToStatusOrderResponse(Order order) {
@@ -88,10 +117,14 @@ public class OrderServiceImpl implements OrderService {
 
     private PaymentHistoryResponse mapToPaymentHistoryResponse(Order order) {
         PaymentHistoryResponse response = new PaymentHistoryResponse();
+        response.setCourseCode(order.getCourse().getCourseCode());
+        response.setThumbnail(order.getCourse().getThumbnail());
+        response.setModul(order.getCourse().getChapter().size());
         response.setCategory(order.getCourse().getCategory());
         response.setTitle(order.getCourse().getTitle());
         response.setTeacher(order.getCourse().getTeacher());
         response.setLevel(order.getCourse().getLevel());
+        response.setRating(order.getCourse().getRating());
         response.setStatus(order.isPaid() ? "Paid" : "Waiting for Payment");
         return response;
     }
@@ -103,8 +136,8 @@ public class OrderServiceImpl implements OrderService {
                 UserCourse userCourse = new UserCourse();
                 userCourse.setCourse(order.getCourse());
                 userCourse.setUser(order.getUser());
-                userCourse.setChapter(chapter.getChapterTitle());
-                userCourse.setSubject(subject.getVideoTitle());
+                userCourse.setChapterId(chapter.getId());
+                userCourse.setSubjectId(subject.getId());
                 userCourseRepository.save(userCourse);
             }
         }

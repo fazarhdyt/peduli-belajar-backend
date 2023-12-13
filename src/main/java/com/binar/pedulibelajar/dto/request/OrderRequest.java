@@ -1,11 +1,11 @@
 package com.binar.pedulibelajar.dto.request;
 
+import com.binar.pedulibelajar.enumeration.PaymentMethod;
 import lombok.Data;
 
 @Data
 public class OrderRequest {
 
-    String email;
     String courseCode;
-    String paymentMethod;
+    PaymentMethod paymentMethod;
 }

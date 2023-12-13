@@ -2,16 +2,18 @@ package com.binar.pedulibelajar.dto.response;
 
 import com.binar.pedulibelajar.enumeration.CourseCategory;
 import com.binar.pedulibelajar.enumeration.CourseLevel;
-import com.binar.pedulibelajar.enumeration.Type;
 import lombok.Data;
 
 @Data
-public class CreateCourseResponse {
+public class DashboardCourseResponse {
 
-    private String title;
     private String courseCode;
+    private String thumbnail;
+    private String title;
     private CourseCategory category;
-    private Type type;
+    private String teacher;
     private CourseLevel level;
-    private Long price;
+    private int modul;
+    private double rating;
+    private double price;
 }

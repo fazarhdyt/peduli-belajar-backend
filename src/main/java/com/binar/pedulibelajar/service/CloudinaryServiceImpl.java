@@ -3,6 +3,7 @@ package com.binar.pedulibelajar.service;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -10,22 +11,24 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.Map;
 
-@Service
+@Slf4j
 @RequiredArgsConstructor
-public class CloudinaryServiceImpl implements CloudinaryService {
+@Service
+public class CloudinaryServiceImpl implements CloudinaryService{
 
-    @Autowired
     private final Cloudinary cloudinary;
-
 
     @Override
     public String upload(MultipartFile multipartFile) {
-        try{
+
+        try {
             Map<?, ?> uploadResult = cloudinary.uploader().upload(multipartFile.getBytes(),
-                    ObjectUtils.asMap(multipartFile.getName(), multipartFile.getName()));
-            return uploadResult.get("url").toString();
-    } catch (IOException e){
-            throw new RuntimeException("Failed to upload profile picture");
+                    ObjectUtils.emptyMap());
+            String imageUrl = uploadResult.get("url").toString();
+            return imageUrl;
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+        return null;
     }
 }

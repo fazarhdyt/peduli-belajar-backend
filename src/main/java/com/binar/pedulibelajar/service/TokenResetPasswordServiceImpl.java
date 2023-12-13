@@ -15,7 +15,7 @@ import java.time.Instant;
 import java.util.Optional;
 
 @Service
-public class TokenResetPasswordImpl implements TokenResetPasswordService {
+public class TokenResetPasswordServiceImpl implements TokenResetPasswordService {
 
     @Value("${pedulibelajar.tokenExpirationMs}")
     private Long tokenDurationMs;

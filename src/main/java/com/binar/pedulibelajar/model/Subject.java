@@ -1,5 +1,6 @@
 package com.binar.pedulibelajar.model;
 
+import com.binar.pedulibelajar.enumeration.Type;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -28,8 +29,7 @@ public class Subject {
     @JoinColumn(name = "chapter_id", referencedColumnName = "id")
     private Chapter chapter;
 
-    @ManyToOne
-    @JoinColumn(name = "subject_type_id", referencedColumnName = "id")
-    private SubjectType subjectType;
+    @Enumerated(EnumType.STRING)
+    private Type subjectType;
 
 }

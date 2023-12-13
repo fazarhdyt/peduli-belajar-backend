@@ -1,6 +1,7 @@
 package com.binar.pedulibelajar.service;
 
 import com.binar.pedulibelajar.dto.request.OrderRequest;
+import com.binar.pedulibelajar.dto.response.OrderDetailCourseResponse;
 import com.binar.pedulibelajar.dto.response.PaymentHistoryResponse;
 import com.binar.pedulibelajar.dto.response.StatusOrderResponse;
 
@@ -12,5 +13,7 @@ public interface OrderService {
 
     List<StatusOrderResponse> getStatusOrders();
 
-    List<PaymentHistoryResponse> getPaymentHistory(String email);
+    List<PaymentHistoryResponse> getPaymentHistory();
+
+    OrderDetailCourseResponse getOrderDetailCourse(String courseCode);
 }

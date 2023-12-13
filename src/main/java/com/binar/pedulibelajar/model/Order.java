@@ -1,5 +1,6 @@
 package com.binar.pedulibelajar.model;
 
+import com.binar.pedulibelajar.enumeration.PaymentMethod;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -32,7 +33,8 @@ public class Order {
 
     private boolean paid;
 
-    private String paymentMethod;
+    @Enumerated(EnumType.STRING)
+    private PaymentMethod paymentMethod;
 
     private Date paymentDate;
 

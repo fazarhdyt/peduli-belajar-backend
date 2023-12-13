@@ -1,6 +1,6 @@
 package com.binar.pedulibelajar.security;
 
-import com.binar.pedulibelajar.model.ERole;
+import com.binar.pedulibelajar.enumeration.ERole;
 import com.binar.pedulibelajar.security.jwt.AuthEntryPointJwt;
 import com.binar.pedulibelajar.security.jwt.AuthTokenFilter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,9 +15,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
@@ -47,7 +44,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/auth/**", "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/api/course/**",
                         "/api/auth/reset-password", "/api/auth/reset-password/**")
                 .permitAll()
-                .antMatchers("/api/order")
+                .antMatchers("/api/order/**", "/api/user/**")
                 .hasAuthority(ERole.USER.name())
                 .antMatchers("/api/admin/**")
                 .hasAuthority(ERole.ADMIN.name())

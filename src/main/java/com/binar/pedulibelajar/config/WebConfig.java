@@ -1,4 +1,4 @@
-package com.binar.pedulibelajar.swagger;
+package com.binar.pedulibelajar.config;
 
 import io.netty.handler.codec.http.HttpMethod;
 import org.apache.http.HttpHeaders;
@@ -9,12 +9,12 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 
 @Configuration
 @EnableWebMvc
-public class WebConfigCors extends WebMvcConfigurerAdapter {
+public class WebConfig extends WebMvcConfigurerAdapter {
 
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("http://localhost:5173")
+                        .allowedOrigins("*")
                         .allowedHeaders(
                                 HttpHeaders.AUTHORIZATION,
                                 HttpHeaders.CONTENT_TYPE,

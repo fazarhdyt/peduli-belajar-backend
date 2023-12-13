@@ -19,7 +19,6 @@ public class CloudinaryConfig {
                 "api_key", "931245915128513",
                 "api_secret", "W4-2zNnA8R3spiSaM1LNBq53bNg"));
     }
-
     @Bean
     public CloudinaryService cloudinaryService(){
         return new CloudinaryServiceImpl(cloudinary());
