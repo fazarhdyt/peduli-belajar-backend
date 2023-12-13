@@ -29,8 +29,8 @@ public class Course {
     private double price;
     private String description;
     private String teacher;
+    private String thumbnail;
 
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
     private List<Chapter> chapter;
-
 }

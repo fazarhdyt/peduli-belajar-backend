@@ -1,6 +1,7 @@
 package com.binar.pedulibelajar.dto.response;
 
 import lombok.Data;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -14,5 +15,6 @@ public class CourseResponse {
     private double price;
     private String description;
     private String teacher;
+    private MultipartFile thumbnail;
     private List<ChapterResponse> chapter;
 }

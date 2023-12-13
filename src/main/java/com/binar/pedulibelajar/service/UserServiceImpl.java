@@ -10,6 +10,8 @@ import com.binar.pedulibelajar.model.User;
 import com.binar.pedulibelajar.repository.OTPRepository;
 import com.binar.pedulibelajar.repository.UserRepository;
 import com.binar.pedulibelajar.security.jwt.JwtUtils;
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,12 +22,15 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.transaction.Transactional;
+import java.io.IOException;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Map;
 
 @Service
 @Transactional
@@ -54,6 +59,10 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private OTPService otpService;
+
+    @Autowired
+    private  Cloudinary cloudinary;
+
 
     @Override
     public JwtResponse authenticateUser(LoginRequest loginRequest) {
@@ -153,11 +162,26 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User editProfile(String email, EditProfileRequest editProfileRequest) {
+    public User editProfile(EditProfileRequest editProfileRequest) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+
         User existingUser = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         modelMapper.map(editProfileRequest, existingUser);
+
+        if (editProfileRequest != null && !editProfileRequest.getProfilePicture().isEmpty()) {
+            try {
+                Map<?, ?> uploadResult = cloudinary.uploader().upload(editProfileRequest.getProfilePicture().getBytes(),
+                        ObjectUtils.emptyMap());
+                String imageUrl = uploadResult.get("url").toString();
+                existingUser.setProfilePictureUrl(imageUrl);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
         return userRepository.save(existingUser);
     }
+
 }
