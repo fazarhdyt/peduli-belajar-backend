@@ -1,13 +1,10 @@
 package com.binar.pedulibelajar.service;
 
 import com.binar.pedulibelajar.dto.request.ChapterRequest;
-import com.binar.pedulibelajar.dto.request.CourseRequest;
 import com.binar.pedulibelajar.dto.request.SubjectRequest;
-import com.binar.pedulibelajar.dto.response.ChapterResponse;
-import com.binar.pedulibelajar.dto.response.CreateCourseResponse;
-import com.binar.pedulibelajar.dto.response.SubjectResponse;
+import com.binar.pedulibelajar.dto.response.*;
 import com.binar.pedulibelajar.model.*;
-import com.binar.pedulibelajar.dto.response.CourseResponse;
+import com.binar.pedulibelajar.dto.request.CourseRequest;
 import com.binar.pedulibelajar.repository.ChapterRepository;
 import com.binar.pedulibelajar.repository.CourseRepository;
 import com.binar.pedulibelajar.repository.SubjectRepository;
@@ -18,7 +15,9 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.persistence.EntityNotFoundException;
 import java.io.IOException;
@@ -63,7 +62,8 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public Page<CourseResponse> getCourseByFilters(List<String> category, List<String> levels, List<String> types, Pageable pageable) {
+    public Page<CourseResponse> getCourseByFilters(List<String> category, List<String> levels, List<String> types,
+            Pageable pageable) {
         Page<Course> courses = courseRepository.findAllByFilters(category, levels, types, pageable);
         return courses.map(this::mapToCourseResponse);
     }
@@ -130,13 +130,33 @@ public class CourseServiceImpl implements CourseService {
                    // existingCourse.setThumbnail(String.valueOf(courseRequest.getThumbnail()));
                     Course updatedCourse = courseRepository.save(existingCourse);
                     return modelMapper.map(updatedCourse, CreateCourseResponse.class);
-                }).orElse(null);
+                }).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "course not found"));
     }
 
     @Override
     public void deleteCourse(String courseCode) {
-        courseRepository.findByCourseCode(courseCode).ifPresent(course ->
-                courseRepository.delete(course));
+        courseRepository.findByCourseCode(courseCode).ifPresent(course -> courseRepository.delete(course));
+    }
+
+    @Override
+    public OrderDetailCourseResponse getOrderDetailCourse(String courseCode) {
+
+        Course course = courseRepository.findByCourseCode(courseCode)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "course not found"));
+
+        final double tax = 0.11;
+        double price = course.getPrice();
+        double calculateTax = tax * price;
+        double totalPrice = price + (price * tax);
+
+        return OrderDetailCourseResponse.builder()
+                .courseTitle(course.getTitle())
+                .category(course.getCategory())
+                .authorCourse(course.getTeacher())
+                .price(price)
+                .tax(calculateTax)
+                .totalPrice(totalPrice)
+                .build();
     }
 
     private CourseResponse mapToCourseResponse(Course course) {
@@ -212,13 +232,15 @@ public class CourseServiceImpl implements CourseService {
 
         return chapter;
     }
+
     private Subject mapToEntitySubject(SubjectRequest subjectRequest) {
         Subject subject = new Subject();
         subject.setSubjectNo(subjectRequest.getSubjectNo());
         subject.setVideoTitle(subjectRequest.getVideoTitle());
         subject.setVideoLink(subjectRequest.getVideoLink());
         SubjectType subjectType = subjectTypeRepository.findByName(subjectRequest.getSubjectType().getName())
-                .orElseThrow(() -> new EntityNotFoundException("SubjectType not found with name: " + subjectRequest.getSubjectType().getName()));
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "SubjectType not found with name: " + subjectRequest.getSubjectType().getName()));
         subject.setSubjectType(subjectType);
         return subject;
     }

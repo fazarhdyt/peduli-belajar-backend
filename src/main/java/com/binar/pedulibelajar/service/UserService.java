@@ -2,13 +2,17 @@ package com.binar.pedulibelajar.service;
 
 import com.binar.pedulibelajar.dto.request.EditProfileRequest;
 import com.binar.pedulibelajar.dto.request.LoginRequest;
+import com.binar.pedulibelajar.dto.request.ResetPasswordRequest;
 import com.binar.pedulibelajar.dto.request.SignupRequest;
 import com.binar.pedulibelajar.dto.response.JwtResponse;
 import com.binar.pedulibelajar.model.User;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
+
 public interface UserService {
-    JwtResponse authenticateUser(LoginRequest loginRequest);
+
+    JwtResponse authenticateUser(LoginRequest loginRequest, HttpServletResponse response);
 
     User registerUser(SignupRequest signupRequest);
 
@@ -17,4 +21,11 @@ public interface UserService {
     void verifyAccount(String email, String otp);
 
     User editProfile(EditProfileRequest editProfileRequest);
+
+    void regenerateOtp(String email);
+
+    void generateLinkResetPassword(String email);
+
+    void resetPassword(String token, ResetPasswordRequest resetPasswordRequest);
+
 }

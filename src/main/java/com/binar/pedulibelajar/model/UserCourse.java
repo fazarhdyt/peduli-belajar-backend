@@ -6,21 +6,27 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Entity
-public class SubjectType {
+public class UserCourse {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    private String name;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
-    @OneToMany(mappedBy = "subjectType")
-    private List<Subject> subject;
+    @ManyToOne
+    @JoinColumn(name = "course_id")
+    private Course course;
+
+    private String chapter;
+    private String subject;
+    private boolean done;
 }

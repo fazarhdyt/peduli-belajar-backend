@@ -14,23 +14,25 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@CrossOrigin("http://localhost:5173")
 @RestController
-@RequestMapping("/api/course")
+@RequestMapping("/api")
 public class CourseController {
 
     @Autowired
     private CourseService courseService;
 
-    @GetMapping
+    @GetMapping("/course")
     @Operation(summary = "api to get all course")
-    public ResponseEntity<Object> getAllCourses(){
+    public ResponseEntity<Object> getAllCourses() {
         return ResponseData.statusResponse(courseService.getAllCourses(), HttpStatus.OK, "success get all course");
     }
 
-    @GetMapping("/{courseCode}")
+    @GetMapping("/course/{courseCode}")
     @Operation(summary = "api to get course by courseCode")
     public ResponseEntity<Object> getCourseByCourseCode(@PathVariable String courseCode) {
-        return ResponseData.statusResponse(courseService.getCourseByCourseCode(courseCode), HttpStatus.OK, "success get course");
+        return ResponseData.statusResponse(courseService.getCourseByCourseCode(courseCode), HttpStatus.OK,
+                "success get course");
     }
 
     @GetMapping("/filter")
@@ -54,13 +56,16 @@ public class CourseController {
     @PostMapping("/admin")
     @Operation(summary = "api to create course")
     public ResponseEntity<Object> createCourse(@RequestBody CourseRequest courseRequest) {
-        return ResponseData.statusResponse(courseService.createCourse(courseRequest), HttpStatus.OK, "success create course");
+        return ResponseData.statusResponse(courseService.createCourse(courseRequest), HttpStatus.OK,
+                "success create course");
     }
 
     @PutMapping("/admin/{courseCode}")
     @Operation(summary = "api to update course")
-    public ResponseEntity<Object> updateCourse(@PathVariable String courseCode, @RequestBody CourseRequest courseRequest) {
-        return ResponseData.statusResponse(courseService.updateCourse(courseCode, courseRequest), HttpStatus.OK, "success update course");
+    public ResponseEntity<Object> updateCourse(@PathVariable String courseCode,
+            @RequestBody CourseRequest courseRequest) {
+        return ResponseData.statusResponse(courseService.updateCourse(courseCode, courseRequest), HttpStatus.OK,
+                "success update course");
     }
 
     @DeleteMapping("/admin/{courseCode}")

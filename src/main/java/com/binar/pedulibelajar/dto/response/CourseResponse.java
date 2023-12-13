@@ -7,6 +7,7 @@ import java.util.List;
 
 @Data
 public class CourseResponse {
+
     private String title;
     private String courseCode;
     private String category;
