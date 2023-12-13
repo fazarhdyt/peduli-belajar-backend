@@ -1,20 +1,20 @@
 package com.binar.pedulibelajar.controller;
 
 import com.binar.pedulibelajar.dto.request.CourseRequest;
-import com.binar.pedulibelajar.dto.response.CourseResponse;
 import com.binar.pedulibelajar.dto.response.ResponseData;
+import com.binar.pedulibelajar.enumeration.CourseCategory;
+import com.binar.pedulibelajar.enumeration.CourseLevel;
+import com.binar.pedulibelajar.enumeration.Type;
 import com.binar.pedulibelajar.service.CourseService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@CrossOrigin("http://localhost:5173")
+@CrossOrigin("*")
 @RestController
 @RequestMapping("/api")
 public class CourseController {
@@ -35,32 +35,40 @@ public class CourseController {
                 "success get course");
     }
 
-    @GetMapping("/filter")
+    @GetMapping("/course/filter")
     @Operation(summary = "api to get course by filter")
-    public ResponseEntity<Page<CourseResponse>> getCoursesByFilters(
-            @RequestParam(name = "category", required = false) List<String> category,
-            @RequestParam(name = "level", required = false) List<String> level,
-            @RequestParam(name = "type", required = false) List<String> type,
-            Pageable pageable) {
+    public ResponseEntity<Object> getCoursesByFilters(
+            @RequestParam(required = false, defaultValue = "1") Integer page,
+            @RequestParam(required = false, defaultValue = "3") Integer size,
+            @RequestParam(name = "category", required = false) List<CourseCategory> category,
+            @RequestParam(name = "level", required = false) List<CourseLevel> level,
+            @RequestParam(name = "type", required = false) List<Type> type,
+            @RequestParam(required = false) String title) {
 
-        if (category != null && category.isEmpty() &&
-                level != null && level.isEmpty() &&
-                type != null && type.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
-
-        Page<CourseResponse> courses = courseService.getCourseByFilters(category, level, type, pageable);
-        return new ResponseEntity<>(courses, HttpStatus.OK);
+        return ResponseData.statusResponse(courseService.getCourseByFilters(page, size, category, level, type, title),
+                HttpStatus.OK, "success get courses");
     }
 
-    @PostMapping("/admin")
+    @GetMapping("/admin/totalCourse")
+    @Operation(summary = "api to get total courses")
+    public ResponseEntity<Object> getTotalCourses() {
+        return ResponseData.statusResponse(courseService.getTotalCourse(), HttpStatus.OK, "success get total course");
+    }
+
+    @GetMapping("/admin/totalPremiumCourse")
+    @Operation(summary = "api to get total premium courses")
+    public ResponseEntity<Object> getTotalPremiumCourses() {
+        return ResponseData.statusResponse(courseService.getPremiumCourse(), HttpStatus.OK, "success get premium course");
+    }
+
+    @PostMapping("/admin/course")
     @Operation(summary = "api to create course")
     public ResponseEntity<Object> createCourse(@RequestBody CourseRequest courseRequest) {
         return ResponseData.statusResponse(courseService.createCourse(courseRequest), HttpStatus.OK,
                 "success create course");
     }
 
-    @PutMapping("/admin/{courseCode}")
+    @PutMapping("/admin/course/{courseCode}")
     @Operation(summary = "api to update course")
     public ResponseEntity<Object> updateCourse(@PathVariable String courseCode,
             @RequestBody CourseRequest courseRequest) {
@@ -68,7 +76,7 @@ public class CourseController {
                 "success update course");
     }
 
-    @DeleteMapping("/admin/{courseCode}")
+    @DeleteMapping("/admin/course/{courseCode}")
     @Operation(summary = "api to delete course")
     public ResponseEntity<Object> deleteCourse(@PathVariable String courseCode) {
         courseService.deleteCourse(courseCode);

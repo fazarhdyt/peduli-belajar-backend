@@ -1,5 +1,6 @@
 package com.binar.pedulibelajar.model;
 
+import com.binar.pedulibelajar.enumeration.ERole;
 import lombok.Data;
 import org.hibernate.annotations.GenericGenerator;
 import org.springframework.security.core.GrantedAuthority;

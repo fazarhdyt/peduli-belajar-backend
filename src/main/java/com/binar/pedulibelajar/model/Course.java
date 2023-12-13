@@ -1,5 +1,8 @@
 package com.binar.pedulibelajar.model;
 
+import com.binar.pedulibelajar.enumeration.CourseCategory;
+import com.binar.pedulibelajar.enumeration.CourseLevel;
+import com.binar.pedulibelajar.enumeration.Type;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -23,12 +26,25 @@ public class Course {
 
     private String title;
     private String courseCode;
-    private String category;
-    private String type;
-    private String level;
+
+    @Enumerated(EnumType.STRING)
+    private CourseCategory category;
+
+    @Enumerated(EnumType.STRING)
+    private Type type;
+
+    @Enumerated(EnumType.STRING)
+    private CourseLevel level;
+
     private double price;
+
+    @Column(columnDefinition = "text")
     private String description;
+
     private String teacher;
+
+    private double rating;
+
     private String thumbnail;
 
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)

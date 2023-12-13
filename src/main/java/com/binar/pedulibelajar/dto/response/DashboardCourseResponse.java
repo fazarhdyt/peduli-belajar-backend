@@ -5,12 +5,15 @@ import com.binar.pedulibelajar.enumeration.CourseLevel;
 import lombok.Data;
 
 @Data
-public class PaymentHistoryResponse {
+public class DashboardCourseResponse {
 
-    private CourseCategory category;
+    private String courseCode;
+    private String thumbnail;
     private String title;
+    private CourseCategory category;
     private String teacher;
     private CourseLevel level;
-    private String status;
-
+    private int modul;
+    private double rating;
+    private double price;
 }

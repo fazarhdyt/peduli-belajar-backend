@@ -1,5 +1,6 @@
 package com.binar.pedulibelajar.dto.response;
 
+import com.binar.pedulibelajar.enumeration.CourseCategory;
 import lombok.Builder;
 import lombok.Data;
 
@@ -7,7 +8,7 @@ import lombok.Data;
 @Data
 public class OrderDetailCourseResponse {
 
-    private String category;
+    private CourseCategory category;
     private String courseTitle;
     private String authorCourse;
     private double price;
