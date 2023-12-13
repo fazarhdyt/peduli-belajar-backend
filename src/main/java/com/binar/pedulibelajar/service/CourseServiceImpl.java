@@ -11,6 +11,8 @@ import com.binar.pedulibelajar.dto.request.CourseRequest;
 import com.binar.pedulibelajar.repository.ChapterRepository;
 import com.binar.pedulibelajar.repository.CourseRepository;
 import com.binar.pedulibelajar.repository.SubjectRepository;
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -21,7 +23,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.persistence.EntityNotFoundException;
+import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -43,6 +48,9 @@ public class CourseServiceImpl implements CourseService {
     @Autowired
     private ModelMapper modelMapper;
 
+    @Autowired
+    private Cloudinary cloudinary;
+
     @Override
     public List<DetailCourseResponse> getAllCourses() {
         List<Course> courses = courseRepository.findAll();
@@ -54,7 +62,7 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public DetailCourseResponse getCourseByCourseCode(String courseCode) {
         Optional<Course> course = courseRepository.findByCourseCode(courseCode);
-        if(course.get().getType().equals(Type.FREE)){
+        if (course.get().getType().equals(Type.FREE)) {
             return course.map(this::mapToDetailCourseResponse).get();
         }
 
@@ -64,7 +72,8 @@ public class CourseServiceImpl implements CourseService {
                     () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Course not found"));
         } else {
             // logic map course free tanpa premium
-//            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User has not purchased this course");
+            // throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User has not
+            // purchased this course");
             return course.map(this::mapToDetailCourseResponse).orElseThrow(
                     () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Course not found2"));
         }
@@ -72,11 +81,12 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public PaginationCourseResponse getCourseByFilters(Integer page, Integer size, List<CourseCategory> category,
-                                                   List<CourseLevel> levels, List<Type> types, String title) {
+            List<CourseLevel> levels, List<Type> types, String title) {
         page -= 1;
         Pageable pages = PageRequest.of(page, size);
         Page<Course> courses = courseRepository.findAllByFilters(category, levels, types, title, pages)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "course not found"));;
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "course not found"));
+        ;
         return mapToPaginationCourseResponse(courses);
     }
 
@@ -94,11 +104,45 @@ public class CourseServiceImpl implements CourseService {
                 subjectRepository.save(subject);
             }
         }
+        /*
+         * TODO: FIXING UPLOAD THUMBNAIL
+         * if (courseRequest != null && !courseRequest.getThumbnail().isEmpty()) {
+         * try {
+         * Map<?, ?> uploadResult =
+         * cloudinary.uploader().upload(courseRequest.getThumbnail().getBytes(),
+         * ObjectUtils.emptyMap());
+         * String imageUrl = uploadResult.get("url").toString();
+         * course.setThumbnail(imageUrl);
+         * } catch (IOException e) {
+         * e.printStackTrace();
+         * }
+         * }
+         * 
+         */
+
         return modelMapper.map(courseRequest, CreateCourseResponse.class);
     }
 
     @Override
     public CreateCourseResponse updateCourse(String courseCode, CourseRequest courseRequest) {
+        /*
+         * TODO: FIXING UPLOAD THUMBNAIL
+         * Course course = courseRepository.findByCourseCode(courseCode)
+         * .orElseThrow(() -> new RuntimeException("Course not found"));
+         * if (courseRequest != null && !courseRequest.getThumbnail().isEmpty()) {
+         * try {
+         * Map<?, ?> uploadResult =
+         * cloudinary.uploader().upload(courseRequest.getThumbnail().getBytes(),
+         * ObjectUtils.emptyMap());
+         * String imageUrl = uploadResult.get("url").toString();
+         * course.setThumbnail(imageUrl);
+         * } catch (IOException e) {
+         * e.printStackTrace();
+         * }
+         * }
+         * 
+         */
+
         return courseRepository.findByCourseCode(courseCode)
                 .map(existingCourse -> {
                     existingCourse.setTitle(courseRequest.getTitle());
@@ -109,6 +153,7 @@ public class CourseServiceImpl implements CourseService {
                     existingCourse.setDescription(courseRequest.getDescription());
                     existingCourse.setPrice(courseRequest.getPrice());
                     existingCourse.setTeacher(courseRequest.getTeacher());
+                    // existingCourse.setThumbnail(String.valueOf(courseRequest.getThumbnail()));
                     Course updatedCourse = courseRepository.save(existingCourse);
                     return modelMapper.map(updatedCourse, CreateCourseResponse.class);
                 }).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "course not found"));

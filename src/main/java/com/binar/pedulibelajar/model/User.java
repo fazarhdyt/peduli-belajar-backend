@@ -39,13 +39,13 @@ public class User implements UserDetails {
     @NotBlank(message = "phone number is required")
     private String noTelp;
 
-    private boolean active;
-
-    private String profilePicture;
-
     private String city;
 
     private String country;
+
+    private String profilePictureUrl;
+
+    private boolean active;
 
     @Enumerated(EnumType.STRING)
     private ERole role;

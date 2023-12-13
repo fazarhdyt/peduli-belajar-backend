@@ -1,12 +1,9 @@
 package com.binar.pedulibelajar.controller;
 
 import com.binar.pedulibelajar.dto.request.LoginRequest;
-import com.binar.pedulibelajar.dto.request.ResetPasswordRequest;
 import com.binar.pedulibelajar.dto.request.SignupRequest;
 import com.binar.pedulibelajar.dto.response.ResponseData;
 import com.binar.pedulibelajar.service.AuthService;
-import com.binar.pedulibelajar.service.OTPService;
-import com.binar.pedulibelajar.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 
 import javax.servlet.http.HttpServletResponse;
@@ -23,9 +20,6 @@ public class AuthController {
 
     @Autowired
     private AuthService authService;
-
-    @Autowired
-    private OTPService otpService;
 
     @PostMapping("/signup")
     @Operation(summary = "api for user to register")

@@ -42,6 +42,7 @@ public class Course {
     private String description;
 
     private String teacher;
+    private String thumbnail;
 
     private double rating;
 

@@ -20,18 +20,18 @@ public interface CourseRepository extends JpaRepository<Course, String> {
 
         Optional<Course> findByCourseCode(String courseCode);
 
-        //TODO: query isDone pada course yang sudah dibeli user
+        // TODO: query isDone pada course yang sudah dibeli user
         @Query("SELECT c FROM Course c WHERE " +
-                "(c.category IN (:category) OR :category IS NULL) AND " +
-                "(c.level IN (:level) OR :level IS NULL) AND " +
-                "(c.type IN (:type) OR :type IS NULL) AND " +
-                "(:title IS NULL OR (LOWER(c.title) LIKE LOWER(CONCAT('%', :title, '%'))))")
+                        "(c.category IN (:category) OR :category IS NULL) AND " +
+                        "(c.level IN (:level) OR :level IS NULL) AND " +
+                        "(c.type IN (:type) OR :type IS NULL) AND " +
+                        "(:title IS NULL OR (LOWER(c.title) LIKE LOWER(CONCAT('%', :title, '%'))))")
         Optional<Page<Course>> findAllByFilters(
-                @Param("category") List<CourseCategory> category,
-                @Param("level") List<CourseLevel> level,
-                @Param("type") List<Type> type,
-                @Param("title") String title,
-                Pageable pageable);
+                        @Param("category") List<CourseCategory> category,
+                        @Param("level") List<CourseLevel> level,
+                        @Param("type") List<Type> type,
+                        @Param("title") String title,
+                        Pageable pageable);
 
         @Query("SELECT COUNT(c) FROM Course c")
         long countTotalCourses();
