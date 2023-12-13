@@ -24,6 +24,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
 
 @Service
@@ -61,7 +63,7 @@ public class UserServiceImpl implements UserService {
     private TokenResetPasswordRepository tokenResetPasswordRepository;
 
     @Override
-    public JwtResponse authenticateUser(LoginRequest loginRequest) {
+    public JwtResponse authenticateUser(LoginRequest loginRequest, HttpServletResponse response) {
         User user = userRepository.findByEmail(loginRequest.getEmail())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "user not found"));
 
@@ -77,9 +79,10 @@ public class UserServiceImpl implements UserService {
         User userDetails = (User) authentication.getPrincipal();
         String jwt = jwtUtils.generateJwtToken(authentication);
 
-//        List<String> roles = userDetails.getAuthorities().stream()
-//                .map(GrantedAuthority::getAuthority)
-//                .collect(Collectors.toList());
+        Cookie jwtCookie = new Cookie("JWT_TOKEN", jwt);
+        jwtCookie.setMaxAge(3600);
+        jwtCookie.setPath("/");
+        response.addCookie(jwtCookie);
 
         return new JwtResponse(jwt,
                 userDetails.getEmail(),

@@ -6,9 +6,11 @@ import com.binar.pedulibelajar.dto.request.SignupRequest;
 import com.binar.pedulibelajar.dto.response.JwtResponse;
 import com.binar.pedulibelajar.model.User;
 
+import javax.servlet.http.HttpServletResponse;
+
 public interface UserService {
 
-    JwtResponse authenticateUser(LoginRequest loginRequest);
+    JwtResponse authenticateUser(LoginRequest loginRequest, HttpServletResponse response);
 
     User registerUser(SignupRequest signupRequest);
 
