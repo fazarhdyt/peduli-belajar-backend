@@ -1,6 +1,7 @@
 package com.binar.pedulibelajar.dto.request;
 
 import lombok.Data;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -15,5 +16,6 @@ public class CourseRequest {
     private double price;
     private String description;
     private String teacher;
+    //private MultipartFile thumbnail;
     private List<ChapterRequest> chapter;
 }
