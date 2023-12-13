@@ -1,5 +1,6 @@
 package com.binar.pedulibelajar.service;
 
+import com.binar.pedulibelajar.dto.request.EditProfileRequest;
 import com.binar.pedulibelajar.dto.request.LoginRequest;
 import com.binar.pedulibelajar.dto.request.ResetPasswordRequest;
 import com.binar.pedulibelajar.dto.request.SignupRequest;
@@ -23,4 +24,6 @@ public interface UserService {
     void generateLinkResetPassword(String email);
 
     void resetPassword(String token, ResetPasswordRequest resetPasswordRequest);
+
+    User editProfile(String email, EditProfileRequest editProfileRequest);
 }

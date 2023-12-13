@@ -15,7 +15,7 @@ public class PeduliBelajarApplication {
 	}
 
 	@Bean
-	public ModelMapper modelMapper(){
+	public ModelMapper modelMapper() {
 		return new ModelMapper();
 	}
 

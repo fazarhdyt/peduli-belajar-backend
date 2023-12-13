@@ -11,6 +11,8 @@ import com.binar.pedulibelajar.repository.SubjectRepository;
 import com.binar.pedulibelajar.repository.SubjectTypeRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -21,7 +23,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-public class CourseServiceImpl implements CourseService{
+public class CourseServiceImpl implements CourseService {
 
     @Autowired
     private CourseRepository courseRepository;
@@ -38,10 +40,9 @@ public class CourseServiceImpl implements CourseService{
     @Autowired
     private ModelMapper modelMapper;
 
-
     @Override
     public List<CourseResponse> getAllCourses() {
-       List<Course> courses = courseRepository.findAll();
+        List<Course> courses = courseRepository.findAll();
         return courses.stream()
                 .map(this::mapToCourseResponse)
                 .collect(Collectors.toList());
@@ -51,6 +52,13 @@ public class CourseServiceImpl implements CourseService{
     public CourseResponse getCourseByCourseCode(String courseCode) {
         Optional<Course> course = courseRepository.findByCourseCode(courseCode);
         return course.map(this::mapToCourseResponse).get();
+    }
+
+    @Override
+    public Page<CourseResponse> getCourseByFilters(List<String> category, List<String> levels, List<String> types,
+            Pageable pageable) {
+        Page<Course> courses = courseRepository.findAllByFilters(category, levels, types, pageable);
+        return courses.map(this::mapToCourseResponse);
     }
 
     @Override
@@ -89,8 +97,7 @@ public class CourseServiceImpl implements CourseService{
 
     @Override
     public void deleteCourse(String courseCode) {
-        courseRepository.findByCourseCode(courseCode).ifPresent(course ->
-            courseRepository.delete(course));
+        courseRepository.findByCourseCode(courseCode).ifPresent(course -> courseRepository.delete(course));
     }
 
     @Override
@@ -187,13 +194,15 @@ public class CourseServiceImpl implements CourseService{
 
         return chapter;
     }
+
     private Subject mapToEntitySubject(SubjectRequest subjectRequest) {
         Subject subject = new Subject();
         subject.setSubjectNo(subjectRequest.getSubjectNo());
         subject.setVideoTitle(subjectRequest.getVideoTitle());
         subject.setVideoLink(subjectRequest.getVideoLink());
         SubjectType subjectType = subjectTypeRepository.findByName(subjectRequest.getSubjectType().getName())
-                .orElseThrow(() -> new EntityNotFoundException("SubjectType not found with name: " + subjectRequest.getSubjectType().getName()));
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "SubjectType not found with name: " + subjectRequest.getSubjectType().getName()));
         subject.setSubjectType(subjectType);
         return subject;
     }

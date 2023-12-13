@@ -18,7 +18,7 @@ import java.util.List;
 @Table(name = "users", uniqueConstraints = {
         @UniqueConstraint(columnNames = "email")
 })
-public class User implements UserDetails{
+public class User implements UserDetails {
 
     @Id
     @GeneratedValue(generator = "UUID")
@@ -39,6 +39,12 @@ public class User implements UserDetails{
     private String noTelp;
 
     private boolean active;
+
+    private String profilePicture;
+
+    private String city;
+
+    private String country;
 
     @Enumerated(EnumType.STRING)
     private ERole role;
