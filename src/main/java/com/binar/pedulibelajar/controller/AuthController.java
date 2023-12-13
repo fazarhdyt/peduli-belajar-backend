@@ -7,6 +7,9 @@ import com.binar.pedulibelajar.dto.response.ResponseData;
 import com.binar.pedulibelajar.service.OTPService;
 import com.binar.pedulibelajar.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
+
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -41,9 +44,10 @@ public class AuthController {
 
     @PostMapping("/signin")
     @Operation(summary = "api for user/admin to login")
-    public ResponseEntity<Object> authenticateUser(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<Object> authenticateUser(@RequestBody LoginRequest loginRequest,
+            HttpServletResponse response) {
 
-        return ResponseData.statusResponse(userService.authenticateUser(loginRequest), HttpStatus.OK,
+        return ResponseData.statusResponse(userService.authenticateUser(loginRequest, response), HttpStatus.OK,
                 "user login successfully!");
     }
 
