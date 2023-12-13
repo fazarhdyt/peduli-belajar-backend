@@ -1,4 +1,4 @@
-package com.binar.pedulibelajar.dto.request;
+package com.binar.pedulibelajar.dto.response;
 
 import com.binar.pedulibelajar.enumeration.CourseCategory;
 import com.binar.pedulibelajar.enumeration.CourseLevel;
@@ -8,8 +8,9 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class CourseRequest {
+public class DetailCourseResponse {
 
+    private String id;
     private String title;
     private String courseCode;
     private CourseCategory category;
@@ -18,5 +19,7 @@ public class CourseRequest {
     private double price;
     private String description;
     private String teacher;
-    private List<ChapterRequest> chapter;
+    private int modul;
+    private double rating;
+    private List<ChapterResponse> chapter;
 }
