@@ -29,16 +29,16 @@ public class UserController {
         return ResponseData.statusResponse(null, HttpStatus.OK, "success request reset password");
     }
 
-    @PostMapping("/user/reset-password")
+    @PostMapping("/user/reset-password/{token}")
     @Operation(summary = "api for user/admin to reset password")
-    public ResponseEntity<Object> resetPassword(@RequestParam String token,
+    public ResponseEntity<Object> resetPassword(@PathVariable String token,
             @RequestBody ResetPasswordRequest resetPasswordRequest) {
 
         userService.resetPassword(token, resetPasswordRequest);
         return ResponseData.statusResponse(null, HttpStatus.OK, "success reset password");
     }
 
-    @PutMapping("/user/{email}")
+    @PutMapping("/user")
     @Operation(summary = "api to edit profile")
     public ResponseEntity<User> editProfile(
             @ModelAttribute EditProfileRequest editProfileRequest) {
