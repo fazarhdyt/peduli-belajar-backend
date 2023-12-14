@@ -25,6 +25,8 @@ public class Course {
     private String id;
 
     private String title;
+
+    @Column(unique = true)
     private String courseCode;
 
     @Enumerated(EnumType.STRING)

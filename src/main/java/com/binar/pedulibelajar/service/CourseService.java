@@ -4,6 +4,7 @@ import com.binar.pedulibelajar.dto.request.CourseRequest;
 import com.binar.pedulibelajar.dto.response.DetailCourseResponse;
 import com.binar.pedulibelajar.dto.response.CreateCourseResponse;
 
+import com.binar.pedulibelajar.dto.response.OrderDetailCourseResponse;
 import com.binar.pedulibelajar.dto.response.PaginationCourseResponse;
 import com.binar.pedulibelajar.enumeration.CourseCategory;
 import com.binar.pedulibelajar.enumeration.CourseLevel;
