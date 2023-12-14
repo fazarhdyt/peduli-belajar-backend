@@ -239,7 +239,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void progressUser(String courseCode, String subjectId) {
+    public double progressUser(String courseCode, String subjectId) {
 
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
@@ -252,7 +252,7 @@ public class UserServiceImpl implements UserService {
         userCourse.setDone(true);
         userCourseRepository.save(userCourse);
 
-        calculatePercentage(user, courseCode);
+        return calculatePercentage(user, courseCode);
     }
 
     @Override
@@ -270,7 +270,7 @@ public class UserServiceImpl implements UserService {
         return totalSubjectCount;
     }
 
-    private void calculatePercentage(User user, String courseCode) {
+    private double calculatePercentage(User user, String courseCode) {
         Course course = courseRepository.findByCourseCode(courseCode)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Course not found"));
 
@@ -296,6 +296,8 @@ public class UserServiceImpl implements UserService {
         userProgress.setPercent(roundedPercent);
 
         userProgressRepository.save(userProgress);
+
+        return roundedPercent;
     }
 
 }

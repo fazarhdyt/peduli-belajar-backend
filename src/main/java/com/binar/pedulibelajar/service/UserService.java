@@ -27,7 +27,7 @@ public interface UserService {
 
     User editProfile(EditProfileRequest editProfileRequest);
 
-    void progressUser(String courseCode, String subjectId);
+    double progressUser(String courseCode, String subjectId);
 
     long getActiveUser();
 }
