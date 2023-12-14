@@ -57,8 +57,7 @@ public class UserController {
 
     @PostMapping("/user/progress")
     public ResponseEntity<Object> progressUser(@RequestParam String courseCode, @RequestParam String subjectId) {
-        userService.progressUser(courseCode, subjectId);
-        return ResponseData.statusResponse(null, HttpStatus.OK, "success");
+        return ResponseData.statusResponse(userService.progressUser(courseCode, subjectId), HttpStatus.OK, "success");
     }
 
     @GetMapping("/admin/activeUser")
