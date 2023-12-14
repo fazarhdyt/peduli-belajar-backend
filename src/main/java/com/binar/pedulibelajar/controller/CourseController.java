@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @CrossOrigin("*")
@@ -63,7 +64,7 @@ public class CourseController {
 
     @PostMapping("/admin/course")
     @Operation(summary = "api to create course")
-    public ResponseEntity<Object> createCourse(@RequestBody CourseRequest courseRequest) {
+    public ResponseEntity<Object> createCourse(@Valid @RequestBody CourseRequest courseRequest) {
         return ResponseData.statusResponse(courseService.createCourse(courseRequest), HttpStatus.OK,
                 "success create course");
     }

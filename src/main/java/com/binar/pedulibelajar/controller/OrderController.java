@@ -9,6 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 @CrossOrigin("*")
 @RestController
 @RequestMapping("/api")
@@ -19,7 +21,7 @@ public class OrderController {
 
     @PostMapping("/order")
     @Operation(summary = "api to user order course")
-    public ResponseEntity<Object> orderCourse(@RequestBody OrderRequest orderRequest) {
+    public ResponseEntity<Object> orderCourse(@Valid @RequestBody OrderRequest orderRequest) {
         orderService.order(orderRequest);
         return ResponseData.statusResponse(null, HttpStatus.OK, "success order course");
     }
