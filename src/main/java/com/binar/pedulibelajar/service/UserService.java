@@ -1,21 +1,16 @@
 package com.binar.pedulibelajar.service;
 
-import com.binar.pedulibelajar.dto.request.EditProfileRequest;
-import com.binar.pedulibelajar.dto.request.LoginRequest;
-import com.binar.pedulibelajar.dto.request.ResetPasswordRequest;
-import com.binar.pedulibelajar.dto.request.SignupRequest;
+import com.binar.pedulibelajar.dto.request.*;
 import com.binar.pedulibelajar.dto.response.JwtResponse;
 import com.binar.pedulibelajar.model.User;
 
-import javax.servlet.http.HttpServletResponse;
-
 public interface UserService {
 
-    JwtResponse authenticateUser(LoginRequest loginRequest, HttpServletResponse response);
+    JwtResponse authenticateUser(LoginRequest loginRequest);
 
-    User registerUser(SignupRequest signupRequest);
+    void registerUser(SignupRequest signupRequest);
 
-    User registerAdmin(SignupRequest signupRequest);
+    void registerAdmin(SignupRequest signupRequest);
 
     void verifyAccount(String email, String otp);
 
@@ -25,9 +20,7 @@ public interface UserService {
 
     void resetPassword(String token, ResetPasswordRequest resetPasswordRequest);
 
-    User editProfile(EditProfileRequest editProfileRequest);
+    User editProfile(String email, EditProfileRequest editProfileRequest);
 
-    void progressUser(String courseCode, String subjectId);
-
-    long getActiveUser();
+    void updatePassword(UpdatePasswordDTO updatePasswordDTO);
 }
