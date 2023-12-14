@@ -62,7 +62,7 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public DetailCourseResponse getCourseByCourseCode(String courseCode) {
         Optional<Course> course = courseRepository.findByCourseCode(courseCode);
-        if (course.get().getType().equals(Type.FREE)) {
+        if (course.get().getType().equals(Type.GRATIS)) {
             return course.map(this::mapToDetailCourseResponse).get();
         }
 
