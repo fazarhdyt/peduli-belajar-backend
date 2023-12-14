@@ -4,7 +4,6 @@ import com.binar.pedulibelajar.dto.request.LoginRequest;
 import com.binar.pedulibelajar.dto.request.ResetPasswordRequest;
 import com.binar.pedulibelajar.dto.request.SignupRequest;
 import com.binar.pedulibelajar.dto.response.ResponseData;
-import com.binar.pedulibelajar.service.OTPService;
 import com.binar.pedulibelajar.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,24 +19,13 @@ public class AuthController {
     @Autowired
     private UserService userService;
 
-    @Autowired
-    private OTPService otpService;
-
     @PostMapping("/signup")
     @Operation(summary = "api for user to register")
     public ResponseEntity<Object> registerUser(@RequestBody SignupRequest signupRequest) {
-
-        return ResponseData.statusResponse(userService.registerUser(signupRequest), HttpStatus.CREATED,
-                "User registered successfully!");
+        userService.registerUser(signupRequest);
+        return ResponseData.statusResponse(null, HttpStatus.CREATED, "User registered successfully!");
     }
 
-    @PostMapping("/signup/admin")
-    @Operation(summary = "api for admin to register")
-    public ResponseEntity<Object> registerAdmin(@RequestBody SignupRequest signupRequest) {
-
-        return ResponseData.statusResponse(userService.registerAdmin(signupRequest), HttpStatus.CREATED,
-                "User registered successfully!");
-    }
 
     @PostMapping("/signin")
     @Operation(summary = "api for user/admin to login")

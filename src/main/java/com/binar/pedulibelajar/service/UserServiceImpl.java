@@ -1,9 +1,6 @@
 package com.binar.pedulibelajar.service;
 
-import com.binar.pedulibelajar.dto.request.EditProfileRequest;
-import com.binar.pedulibelajar.dto.request.LoginRequest;
-import com.binar.pedulibelajar.dto.request.ResetPasswordRequest;
-import com.binar.pedulibelajar.dto.request.SignupRequest;
+import com.binar.pedulibelajar.dto.request.*;
 import com.binar.pedulibelajar.dto.response.JwtResponse;
 import com.binar.pedulibelajar.model.ERole;
 import com.binar.pedulibelajar.model.OTP;
@@ -14,7 +11,6 @@ import com.binar.pedulibelajar.repository.TokenResetPasswordRepository;
 import com.binar.pedulibelajar.repository.UserRepository;
 import com.binar.pedulibelajar.security.jwt.JwtUtils;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -31,35 +27,30 @@ import javax.transaction.Transactional;
 @Transactional
 public class UserServiceImpl implements UserService {
 
-    @Autowired
-    private ModelMapper modelMapper;
+    private final ModelMapper modelMapper;
+    private final UserRepository userRepository;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final AuthenticationManager authenticationManager;
+    private final JwtUtils jwtUtils;
+    private final EmailSenderServiceImpl senderService;
+    private final OTPRepository otpRepository;
+    private final OTPService otpService;
+    private final TokenResetPasswordService resetPasswordService;
+    private final TokenResetPasswordRepository tokenResetPasswordRepository;
 
-    @Autowired
-    private UserRepository userRepository;
+    public UserServiceImpl(ModelMapper modelMapper, UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder, AuthenticationManager authenticationManager, JwtUtils jwtUtils, EmailSenderServiceImpl senderService, OTPRepository otpRepository, OTPService otpService, TokenResetPasswordService resetPasswordService, TokenResetPasswordRepository tokenResetPasswordRepository) {
+        this.modelMapper = modelMapper;
+        this.userRepository = userRepository;
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+        this.authenticationManager = authenticationManager;
+        this.jwtUtils = jwtUtils;
+        this.senderService = senderService;
+        this.otpRepository = otpRepository;
+        this.otpService = otpService;
+        this.resetPasswordService = resetPasswordService;
+        this.tokenResetPasswordRepository = tokenResetPasswordRepository;
+    }
 
-    @Autowired
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
-
-    @Autowired
-    private AuthenticationManager authenticationManager;
-
-    @Autowired
-    private JwtUtils jwtUtils;
-
-    @Autowired
-    private EmailSenderServiceImpl senderService;
-
-    @Autowired
-    private OTPRepository otpRepository;
-
-    @Autowired
-    private OTPService otpService;
-
-    @Autowired
-    private TokenResetPasswordService resetPasswordService;
-
-    @Autowired
-    private TokenResetPasswordRepository tokenResetPasswordRepository;
 
     @Override
     public JwtResponse authenticateUser(LoginRequest loginRequest) {
@@ -78,19 +69,14 @@ public class UserServiceImpl implements UserService {
         User userDetails = (User) authentication.getPrincipal();
         String jwt = jwtUtils.generateJwtToken(authentication);
 
-        // List<String> roles = userDetails.getAuthorities().stream()
-        // .map(GrantedAuthority::getAuthority)
-        // .collect(Collectors.toList());
-
         return new JwtResponse(jwt,
                 userDetails.getEmail(),
                 userDetails.getNoTelp(),
                 userDetails.getRole().toString());
     }
 
-    @Override
-    @Async
-    public User registerUser(SignupRequest signupRequest) {
+    // New private method
+    private void registerUserOrAdmin(SignupRequest signupRequest, ERole role) {
         boolean userExist = userRepository.findByEmail(signupRequest.getEmail()).isPresent();
         if (userExist) {
             throw new RuntimeException(
@@ -101,41 +87,25 @@ public class UserServiceImpl implements UserService {
 
         String encodedPassword = bCryptPasswordEncoder.encode(user.getPassword());
         user.setPassword(encodedPassword);
-        user.setRole(ERole.USER);
+        user.setRole(role);
 
         userRepository.save(user);
 
         OTP otp = otpService.createOTP(user.getEmail());
 
         senderService.sendMailOtp(user.getEmail(), otp);
+    }
 
-        return user;
+    // Updated methods
+    @Override
+    public void registerUser(SignupRequest signupRequest) {
+        registerUserOrAdmin(signupRequest, ERole.USER);
     }
 
     @Override
-    @Async
-    public User registerAdmin(SignupRequest signupRequest) {
-        boolean userExist = userRepository.findByEmail(signupRequest.getEmail()).isPresent();
-        if (userExist) {
-            throw new RuntimeException(
-                    String.format("user with email '%s' already exist", signupRequest.getEmail()));
-        }
-
-        User user = modelMapper.map(signupRequest, User.class);
-
-        String encodedPassword = bCryptPasswordEncoder.encode(user.getPassword());
-        user.setPassword(encodedPassword);
-        user.setRole(ERole.ADMIN);
-
-        userRepository.save(user);
-
-        OTP otp = otpService.createOTP(user.getEmail());
-
-        senderService.sendMailOtp(user.getEmail(), otp);
-
-        return user;
+    public void registerAdmin(SignupRequest signupRequest) {
+        registerUserOrAdmin(signupRequest, ERole.ADMIN);
     }
-
     @Override
     public void verifyAccount(String email, String otp) {
 
@@ -209,8 +179,20 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updatePassword() {
-        //bikin logic update password di sini
+    public void updatePassword(UpdatePasswordDTO updatePasswordDTO) {
+        // Mendapatkan pengguna yang saat ini logins
+        Authentication currentAuthentication = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = userRepository.findByEmail(currentAuthentication.getName())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+        // Memvalidasi password lama
+        if (!bCryptPasswordEncoder.matches(updatePasswordDTO.getOldPassword(), currentUser.getPassword())) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Old password is incorrect");
+        }
+
+        // Mengganti password lama dengan password baru
+        currentUser.setPassword(bCryptPasswordEncoder.encode(updatePasswordDTO.getNewPassword()));
+        userRepository.save(currentUser);
     }
 
 }
