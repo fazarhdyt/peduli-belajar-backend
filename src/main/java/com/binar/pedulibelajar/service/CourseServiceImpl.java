@@ -71,10 +71,7 @@ public class CourseServiceImpl implements CourseService {
             return course.map(this::mapToDetailCourseResponse).orElseThrow(
                     () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Course not found"));
         } else {
-            // logic map course free tanpa premium
-            // throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User has not
-            // purchased this course");
-            return course.map(this::mapToDetailCourseResponse).orElseThrow(
+            return course.map(this::mapToDetailCourseSubjectFreeResponse).orElseThrow(
                     () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Course not found2"));
         }
     }
@@ -193,6 +190,51 @@ public class CourseServiceImpl implements CourseService {
 
         response.setChapter(chapterResponses);
         return response;
+    }
+
+    private DetailCourseResponse mapToDetailCourseSubjectFreeResponse(Course course) {
+        DetailCourseResponse response = new DetailCourseResponse();
+        response.setId(course.getId());
+        response.setTitle(course.getTitle());
+        response.setCourseCode(course.getCourseCode());
+        response.setCategory(course.getCategory());
+        response.setType(course.getType());
+        response.setLevel(course.getLevel());
+        response.setPrice(course.getPrice());
+        response.setDescription(course.getDescription());
+        response.setTeacher(course.getTeacher());
+        response.setModul(course.getChapter().size());
+        response.setRating(course.getRating());
+        List<ChapterResponse> chapterResponses = course.getChapter().stream()
+                .map(this::mapToChapterSubjectFreeResponse)
+                .collect(Collectors.toList());
+
+        response.setChapter(chapterResponses);
+        return response;
+    }
+
+    private ChapterResponse mapToChapterSubjectFreeResponse(Chapter chapter) {
+        ChapterResponse chapterResponse = new ChapterResponse();
+        chapterResponse.setChapterNo(chapter.getChapterNo());
+        chapterResponse.setChapterTitle(chapter.getChapterTitle());
+
+        List<SubjectResponse> subjectResponses = chapter.getSubject().stream()
+                .map(this::mapToSubjectFreeResponse)
+                .collect(Collectors.toList());
+
+        chapterResponse.setSubject(subjectResponses);
+
+        return chapterResponse;
+    }
+
+    private SubjectResponse mapToSubjectFreeResponse(Subject subject) {
+        SubjectResponse subjectResponse = new SubjectResponse();
+        subjectResponse.setSubjectNo(subject.getSubjectNo());
+        subjectResponse.setVideoTitle(subject.getVideoTitle());
+        subjectResponse.setVideoLink(subject.getSubjectType().equals(Type.PREMIUM) ? "" : subject.getVideoLink());
+        subjectResponse.setSubjectType(subject.getSubjectType());
+
+        return subjectResponse;
     }
 
     private DashboardCourseResponse mapToDashboardCourseResponse(Course course) {

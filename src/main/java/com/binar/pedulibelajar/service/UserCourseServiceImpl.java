@@ -38,7 +38,7 @@ public class UserCourseServiceImpl implements UserCourseService {
             UserCourse userCourse = userCourseRepository.findByUserAndCourse(user, course.get()).stream()
                     .findFirst().orElse(null);
             if(!orderRepository.isPaidByUserAndCourse(user, course.get())) {
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "complete the payment first");
+                return false;
             }
             return userCourse != null;
         } else {
