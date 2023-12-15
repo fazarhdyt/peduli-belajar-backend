@@ -52,10 +52,10 @@ public class CourseServiceImpl implements CourseService {
     private Cloudinary cloudinary;
 
     @Override
-    public List<DetailCourseResponse> getAllCourses() {
+    public List<DashboardCourseResponse> getAllCourses() {
         List<Course> courses = courseRepository.findAll();
         return courses.stream()
-                .map(this::mapToDetailCourseResponse)
+                .map(this::mapToDashboardCourseResponse)
                 .collect(Collectors.toList());
     }
 
@@ -83,7 +83,17 @@ public class CourseServiceImpl implements CourseService {
         Pageable pages = PageRequest.of(page, size);
         Page<Course> courses = courseRepository.findAllByFilters(category, levels, types, title, pages)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "course not found"));
-        ;
+        return mapToPaginationCourseResponse(courses);
+    }
+
+    @Override
+    public PaginationCourseResponse getMyCourse(Integer page, Integer size, List<CourseCategory> category,
+                                                List<CourseLevel> levels, List<Type> types, String title) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        page -= 1;
+        Pageable pages = PageRequest.of(page, size);
+        Page<Course> courses = courseRepository.findMyCourseByFilters(category, levels, types, title, email, pages)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "course not found"));
         return mapToPaginationCourseResponse(courses);
     }
 
@@ -101,44 +111,11 @@ public class CourseServiceImpl implements CourseService {
                 subjectRepository.save(subject);
             }
         }
-        /*
-         * TODO: FIXING UPLOAD THUMBNAIL
-         * if (courseRequest != null && !courseRequest.getThumbnail().isEmpty()) {
-         * try {
-         * Map<?, ?> uploadResult =
-         * cloudinary.uploader().upload(courseRequest.getThumbnail().getBytes(),
-         * ObjectUtils.emptyMap());
-         * String imageUrl = uploadResult.get("url").toString();
-         * course.setThumbnail(imageUrl);
-         * } catch (IOException e) {
-         * e.printStackTrace();
-         * }
-         * }
-         * 
-         */
-
         return modelMapper.map(courseRequest, CreateCourseResponse.class);
     }
 
     @Override
     public CreateCourseResponse updateCourse(String courseCode, CourseRequest courseRequest) {
-        /*
-         * TODO: FIXING UPLOAD THUMBNAIL
-         * Course course = courseRepository.findByCourseCode(courseCode)
-         * .orElseThrow(() -> new RuntimeException("Course not found"));
-         * if (courseRequest != null && !courseRequest.getThumbnail().isEmpty()) {
-         * try {
-         * Map<?, ?> uploadResult =
-         * cloudinary.uploader().upload(courseRequest.getThumbnail().getBytes(),
-         * ObjectUtils.emptyMap());
-         * String imageUrl = uploadResult.get("url").toString();
-         * course.setThumbnail(imageUrl);
-         * } catch (IOException e) {
-         * e.printStackTrace();
-         * }
-         * }
-         * 
-         */
 
         return courseRepository.findByCourseCode(courseCode)
                 .map(existingCourse -> {

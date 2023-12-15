@@ -50,6 +50,21 @@ public class CourseController {
                 HttpStatus.OK, "success get courses");
     }
 
+    @GetMapping("/course/my-course")
+    @Operation(summary = "api to get course by filter")
+    public ResponseEntity<Object> getMyCoursesByFilters(
+            @RequestParam(required = false, defaultValue = "1") Integer page,
+            @RequestParam(required = false, defaultValue = "3") Integer size,
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) List<CourseCategory> category,
+            @RequestParam(required = false) List<CourseLevel> level,
+            @RequestParam(required = false) List<Type> type) {
+
+        return ResponseData.statusResponse(
+                courseService.getMyCourse(page, size, category, level, type, title), HttpStatus.OK,
+                "success get my courses");
+    }
+
     @GetMapping("/admin/totalCourse")
     @Operation(summary = "api to get total courses")
     public ResponseEntity<Object> getTotalCourses() {
