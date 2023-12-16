@@ -4,7 +4,6 @@ import com.binar.pedulibelajar.dto.request.CourseRequest;
 import com.binar.pedulibelajar.dto.response.ResponseData;
 import com.binar.pedulibelajar.enumeration.CourseCategory;
 import com.binar.pedulibelajar.enumeration.CourseLevel;
-import com.binar.pedulibelajar.enumeration.Progress;
 import com.binar.pedulibelajar.enumeration.Type;
 import com.binar.pedulibelajar.service.CourseService;
 import io.swagger.v3.oas.annotations.Operation;
