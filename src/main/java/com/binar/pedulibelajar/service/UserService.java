@@ -15,5 +15,5 @@ public interface UserService {
 
     long getActiveUser();
 
-    void updatePassword(UpdatePasswordDTO updatePasswordDTO);
+    void updatePassword(UpdatePasswordRequest updatePasswordDTO);
 }

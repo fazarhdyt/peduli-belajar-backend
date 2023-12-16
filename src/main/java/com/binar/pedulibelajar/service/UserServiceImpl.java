@@ -2,7 +2,7 @@ package com.binar.pedulibelajar.service;
 
 import com.binar.pedulibelajar.dto.request.EditProfileRequest;
 import com.binar.pedulibelajar.dto.request.ResetPasswordRequest;
-import com.binar.pedulibelajar.dto.request.UpdatePasswordDTO;
+import com.binar.pedulibelajar.dto.request.UpdatePasswordRequest;
 import com.binar.pedulibelajar.model.*;
 import com.binar.pedulibelajar.repository.*;
 import com.cloudinary.Cloudinary;
@@ -111,19 +111,24 @@ public class UserServiceImpl implements UserService {
         return userRepository.save(existingUser);
     }
 
-    public void updatePassword(UpdatePasswordDTO updatePasswordDTO) {
+    @Override
+    public void updatePassword(UpdatePasswordRequest updatePasswordRequest) {
         // Mendapatkan pengguna yang saat ini logins
         Authentication currentAuthentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = userRepository.findByEmail(currentAuthentication.getName())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
         // Memvalidasi password lama
-        if (!bCryptPasswordEncoder.matches(updatePasswordDTO.getOldPassword(), currentUser.getPassword())) {
+        if (!bCryptPasswordEncoder.matches(updatePasswordRequest.getOldPassword(), currentUser.getPassword())) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Old password is incorrect");
         }
 
+        if(!updatePasswordRequest.getNewPassword().equals(updatePasswordRequest.getConfirmPassword())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "password not match");
+        }
+
         // Mengganti password lama dengan password baru
-        currentUser.setPassword(bCryptPasswordEncoder.encode(updatePasswordDTO.getNewPassword()));
+        currentUser.setPassword(bCryptPasswordEncoder.encode(updatePasswordRequest.getNewPassword()));
         userRepository.save(currentUser);
     }
 

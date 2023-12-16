@@ -2,6 +2,7 @@ package com.binar.pedulibelajar.controller;
 
 import com.binar.pedulibelajar.dto.request.EditProfileRequest;
 import com.binar.pedulibelajar.dto.request.ResetPasswordRequest;
+import com.binar.pedulibelajar.dto.request.UpdatePasswordRequest;
 import com.binar.pedulibelajar.dto.response.ResponseData;
 import com.binar.pedulibelajar.model.User;
 import com.binar.pedulibelajar.service.UserService;
@@ -53,6 +54,13 @@ public class UserController {
         }
         User updatedUser = userService.editProfile(editProfileRequest);
         return ResponseEntity.ok(updatedUser);
+    }
+
+    @PutMapping("/user/updatePassword")
+    @Operation(summary = "api to user update password")
+    public ResponseEntity<Object> updatePassword(@RequestBody UpdatePasswordRequest updatePasswordRequest) {
+        userService.updatePassword(updatePasswordRequest);
+        return ResponseData.statusResponse(null, HttpStatus.OK, "success update password");
     }
 
     @PostMapping("/user/progress")
