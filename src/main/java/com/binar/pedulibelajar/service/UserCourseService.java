@@ -2,5 +2,7 @@ package com.binar.pedulibelajar.service;
 
 public interface UserCourseService {
 
-    boolean hasUserPurchasedCourse(String userEmail, String courseCode);
+    boolean hasUserPurchasedPremiumCourse(String userEmail, String courseCode);
+
+    boolean hasUserPurchasedFreeCourse(String userEmail, String courseCode);
 }

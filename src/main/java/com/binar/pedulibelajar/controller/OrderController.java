@@ -22,7 +22,7 @@ public class OrderController {
     @PostMapping("/order")
     @Operation(summary = "api to user order course")
     public ResponseEntity<Object> orderCourse(@Valid @RequestBody OrderRequest orderRequest) {
-        orderService.order(orderRequest);
+        orderService.orderPremium(orderRequest);
         return ResponseData.statusResponse(null, HttpStatus.OK, "success order course");
     }
 
