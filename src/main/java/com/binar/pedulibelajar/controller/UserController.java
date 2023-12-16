@@ -40,7 +40,7 @@ public class UserController {
     }
 
     @PutMapping("/user")
-    @Operation(summary = "api to edit profile")
+    @Operation(summary = "api for user to edit profile")
     public ResponseEntity<User> editProfile(
             @ModelAttribute EditProfileRequest editProfileRequest) {
         if (editProfileRequest != null) {
@@ -64,11 +64,13 @@ public class UserController {
     }
 
     @PostMapping("/user/progress")
+    @Operation(summary = "api for calculate learning progress user")
     public ResponseEntity<Object> progressUser(@RequestParam String courseCode, @RequestParam String subjectId) {
         return ResponseData.statusResponse(userService.progressUser(courseCode, subjectId), HttpStatus.OK, "success");
     }
 
     @GetMapping("/admin/activeUser")
+    @Operation(summary = "api for admin to get active user")
     public ResponseEntity<Object> getActiveUser() {
         return ResponseData.statusResponse(userService.getActiveUser(), HttpStatus.OK, "success get active user");
     }
