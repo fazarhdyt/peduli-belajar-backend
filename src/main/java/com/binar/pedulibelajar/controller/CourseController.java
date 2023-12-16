@@ -41,9 +41,9 @@ public class CourseController {
     public ResponseEntity<Object> getCoursesByFilters(
             @RequestParam(required = false, defaultValue = "1") Integer page,
             @RequestParam(required = false, defaultValue = "3") Integer size,
-            @RequestParam(name = "category", required = false) List<CourseCategory> category,
-            @RequestParam(name = "level", required = false) List<CourseLevel> level,
-            @RequestParam(name = "type", required = false) List<Type> type,
+            @RequestParam(required = false) List<CourseCategory> category,
+            @RequestParam(required = false) List<CourseLevel> level,
+            @RequestParam(required = false) List<Type> type,
             @RequestParam(required = false) String title) {
 
         return ResponseData.statusResponse(courseService.getCourseByFilters(page, size, category, level, type, title),
@@ -54,7 +54,7 @@ public class CourseController {
     @Operation(summary = "api to get user coursea by filter")
     public ResponseEntity<Object> getMyCoursesByFilters(
             @RequestParam(required = false, defaultValue = "1") Integer page,
-            @RequestParam(required = false, defaultValue = "3") Integer size,
+            @RequestParam(required = false, defaultValue = "6") Integer size,
             @RequestParam(required = false) String title,
             @RequestParam(required = false) String progresses,
             @RequestParam(required = false) List<CourseCategory> categories,
