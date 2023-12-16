@@ -1,18 +1,21 @@
 package com.binar.pedulibelajar.service;
 
 import com.binar.pedulibelajar.dto.request.ChapterRequest;
+import com.binar.pedulibelajar.dto.request.CourseRequest;
 import com.binar.pedulibelajar.dto.request.SubjectRequest;
 import com.binar.pedulibelajar.dto.response.*;
 import com.binar.pedulibelajar.enumeration.CourseCategory;
 import com.binar.pedulibelajar.enumeration.CourseLevel;
 import com.binar.pedulibelajar.enumeration.Type;
-import com.binar.pedulibelajar.model.*;
-import com.binar.pedulibelajar.dto.request.CourseRequest;
+import com.binar.pedulibelajar.model.Category;
+import com.binar.pedulibelajar.model.Chapter;
+import com.binar.pedulibelajar.model.Course;
+import com.binar.pedulibelajar.model.Subject;
+import com.binar.pedulibelajar.repository.CategoryRepository;
 import com.binar.pedulibelajar.repository.ChapterRepository;
 import com.binar.pedulibelajar.repository.CourseRepository;
 import com.binar.pedulibelajar.repository.SubjectRepository;
 import com.cloudinary.Cloudinary;
-import com.cloudinary.utils.ObjectUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -23,10 +26,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.persistence.EntityNotFoundException;
-import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -51,23 +51,34 @@ public class CourseServiceImpl implements CourseService {
     @Autowired
     private Cloudinary cloudinary;
 
+    @Autowired
+    private CategoryRepository categoryRepository;
+
+    @Autowired
+    private OrderService orderService;
+
     @Override
-    public List<DetailCourseResponse> getAllCourses() {
+    public List<DashboardCourseResponse> getAllCourses() {
         List<Course> courses = courseRepository.findAll();
         return courses.stream()
-                .map(this::mapToDetailCourseResponse)
+                .map(this::mapToDashboardCourseResponse)
                 .collect(Collectors.toList());
     }
 
     @Override
     public DetailCourseResponse getCourseByCourseCode(String courseCode) {
-        Optional<Course> course = courseRepository.findByCourseCode(courseCode);
-        if (course.get().getType().equals(Type.GRATIS)) {
-            return course.map(this::mapToDetailCourseResponse).get();
-        }
 
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        if (userCourseService.hasUserPurchasedCourse(email, courseCode)) {
+        Optional<Course> course = courseRepository.findByCourseCode(courseCode);
+
+        if (course.get().getType().equals(Type.GRATIS)) {
+            if (userCourseService.hasUserPurchasedFreeCourse(email, courseCode)) {
+                return course.map(this::mapToDetailCourseResponse).get();
+            }
+            orderService.orderFree(courseCode);
+        }
+
+        if (userCourseService.hasUserPurchasedPremiumCourse(email, courseCode)) {
             return course.map(this::mapToDetailCourseResponse).orElseThrow(
                     () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Course not found"));
         } else {
@@ -77,14 +88,24 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public PaginationCourseResponse getCourseByFilters(Integer page, Integer size, List<CourseCategory> category,
+    public PaginationCourseResponse<DashboardCourseResponse> getCourseByFilters(Integer page, Integer size, List<CourseCategory> category,
             List<CourseLevel> levels, List<Type> types, String title) {
         page -= 1;
         Pageable pages = PageRequest.of(page, size);
         Page<Course> courses = courseRepository.findAllByFilters(category, levels, types, title, pages)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "course not found"));
-        ;
         return mapToPaginationCourseResponse(courses);
+    }
+
+    @Override
+    public PaginationCourseResponse<DashboardMyCourseResponse> getMyCourse(Integer page, Integer size, List<CourseCategory> categories,
+                                                                           List<CourseLevel> levels, List<Type> types, String progresses, String title) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        page -= 1;
+        Pageable pages = PageRequest.of(page, size);
+        Page<Course> courses = courseRepository.findMyCourseByFilters(categories, levels, types, progresses, title, email, pages)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "course not found"));
+        return mapToPaginationMyCourseResponse(courses);
     }
 
     @Override
@@ -101,44 +122,11 @@ public class CourseServiceImpl implements CourseService {
                 subjectRepository.save(subject);
             }
         }
-        /*
-         * TODO: FIXING UPLOAD THUMBNAIL
-         * if (courseRequest != null && !courseRequest.getThumbnail().isEmpty()) {
-         * try {
-         * Map<?, ?> uploadResult =
-         * cloudinary.uploader().upload(courseRequest.getThumbnail().getBytes(),
-         * ObjectUtils.emptyMap());
-         * String imageUrl = uploadResult.get("url").toString();
-         * course.setThumbnail(imageUrl);
-         * } catch (IOException e) {
-         * e.printStackTrace();
-         * }
-         * }
-         * 
-         */
-
         return modelMapper.map(courseRequest, CreateCourseResponse.class);
     }
 
     @Override
     public CreateCourseResponse updateCourse(String courseCode, CourseRequest courseRequest) {
-        /*
-         * TODO: FIXING UPLOAD THUMBNAIL
-         * Course course = courseRepository.findByCourseCode(courseCode)
-         * .orElseThrow(() -> new RuntimeException("Course not found"));
-         * if (courseRequest != null && !courseRequest.getThumbnail().isEmpty()) {
-         * try {
-         * Map<?, ?> uploadResult =
-         * cloudinary.uploader().upload(courseRequest.getThumbnail().getBytes(),
-         * ObjectUtils.emptyMap());
-         * String imageUrl = uploadResult.get("url").toString();
-         * course.setThumbnail(imageUrl);
-         * } catch (IOException e) {
-         * e.printStackTrace();
-         * }
-         * }
-         * 
-         */
 
         return courseRepository.findByCourseCode(courseCode)
                 .map(existingCourse -> {
@@ -146,11 +134,11 @@ public class CourseServiceImpl implements CourseService {
                     existingCourse.setCourseCode(courseRequest.getCourseCode());
                     existingCourse.setLevel(courseRequest.getLevel());
                     existingCourse.setType(courseRequest.getType());
-                    existingCourse.setCategory(courseRequest.getCategory());
+                    existingCourse.setCategory(categoryRepository.findByCategoryName(courseRequest.getCategory().getCategoryName())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "category not found")));
                     existingCourse.setDescription(courseRequest.getDescription());
                     existingCourse.setPrice(courseRequest.getPrice());
                     existingCourse.setTeacher(courseRequest.getTeacher());
-                    // existingCourse.setThumbnail(String.valueOf(courseRequest.getThumbnail()));
                     Course updatedCourse = courseRepository.save(existingCourse);
                     return modelMapper.map(updatedCourse, CreateCourseResponse.class);
                 }).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "course not found"));
@@ -176,7 +164,7 @@ public class CourseServiceImpl implements CourseService {
         response.setId(course.getId());
         response.setTitle(course.getTitle());
         response.setCourseCode(course.getCourseCode());
-        response.setCategory(course.getCategory());
+        response.setCategory(course.getCategory().getCategoryName());
         response.setType(course.getType());
         response.setLevel(course.getLevel());
         response.setPrice(course.getPrice());
@@ -197,7 +185,7 @@ public class CourseServiceImpl implements CourseService {
         response.setId(course.getId());
         response.setTitle(course.getTitle());
         response.setCourseCode(course.getCourseCode());
-        response.setCategory(course.getCategory());
+        response.setCategory(course.getCategory().getCategoryName());
         response.setType(course.getType());
         response.setLevel(course.getLevel());
         response.setPrice(course.getPrice());
@@ -240,9 +228,8 @@ public class CourseServiceImpl implements CourseService {
     private DashboardCourseResponse mapToDashboardCourseResponse(Course course) {
         DashboardCourseResponse response = new DashboardCourseResponse();
         response.setCourseCode(course.getCourseCode());
-        response.setThumbnail(course.getThumbnail());
         response.setTitle(course.getTitle());
-        response.setCategory(course.getCategory());
+        response.setCategory(mapToCategoryResponse(course.getCategory()));
         response.setLevel(course.getLevel());
         response.setPrice(course.getPrice());
         response.setTeacher(course.getTeacher());
@@ -281,7 +268,8 @@ public class CourseServiceImpl implements CourseService {
         Course course = new Course();
         course.setTitle(courseRequest.getTitle());
         course.setCourseCode(courseRequest.getCourseCode());
-        course.setCategory(courseRequest.getCategory());
+        course.setCategory(categoryRepository.findByCategoryName(courseRequest.getCategory().getCategoryName())
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "category not found")));
         course.setType(courseRequest.getType());
         course.setLevel(courseRequest.getLevel());
         course.setPrice(courseRequest.getPrice());
@@ -319,19 +307,56 @@ public class CourseServiceImpl implements CourseService {
         return subject;
     }
 
-    private PaginationCourseResponse mapToPaginationCourseResponse(Page<Course> coursePage) {
+    private PaginationCourseResponse<DashboardCourseResponse> mapToPaginationCourseResponse(Page<Course> coursePage) {
         List<Course> courseResponses = coursePage.getContent();
 
         List<DashboardCourseResponse> courseResponse = courseResponses.stream()
                 .map(this::mapToDashboardCourseResponse)
                 .collect(Collectors.toList());
 
-        return PaginationCourseResponse.builder()
+        return PaginationCourseResponse.<DashboardCourseResponse>builder()
                 .courses(courseResponse)
                 .currentPage(coursePage.getNumber() + 1)
                 .totalPage(coursePage.getTotalPages())
                 .totalCourse(coursePage.getTotalElements())
                 .build();
     }
+
+    private PaginationCourseResponse<DashboardMyCourseResponse> mapToPaginationMyCourseResponse(
+            Page<Course> coursePage) {
+        List<Course> courseResponses = coursePage.getContent();
+
+        List<DashboardMyCourseResponse> courseResponse = courseResponses.stream()
+                .map(this::mapToDashboardMyCourseResponse)
+                .collect(Collectors.toList());
+
+        return PaginationCourseResponse.<DashboardMyCourseResponse>builder()
+                .courses(courseResponse)
+                .currentPage(coursePage.getNumber() + 1)
+                .totalPage(coursePage.getTotalPages())
+                .totalCourse(coursePage.getTotalElements())
+                .build();
+    }
+
+    private DashboardMyCourseResponse mapToDashboardMyCourseResponse(Course course) {
+        DashboardMyCourseResponse response = new DashboardMyCourseResponse();
+        response.setCourseCode(course.getCourseCode());
+        response.setTitle(course.getTitle());
+        response.setCategory(mapToCategoryResponse(course.getCategory()));
+        response.setLevel(course.getLevel());
+        response.setPercentProgress(course.getUserProgresses().get(0).getPercent());
+        response.setTeacher(course.getTeacher());
+        response.setModul(course.getChapter().size());
+        response.setRating(course.getRating());
+        return response;
+    }
+
+    private CategoryResponse mapToCategoryResponse(Category category) {
+        return CategoryResponse.builder()
+                .categoryName(category.getCategoryName())
+                .categoryImage(category.getCategoryImage())
+                .build();
+    }
+
 
 }

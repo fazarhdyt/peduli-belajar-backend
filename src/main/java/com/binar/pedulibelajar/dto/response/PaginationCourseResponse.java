@@ -7,9 +7,9 @@ import java.util.List;
 
 @Builder
 @Data
-public class PaginationCourseResponse {
+public class PaginationCourseResponse<T> {
 
-    List<DashboardCourseResponse> courses;
+    List<T> courses;
     Integer currentPage;
     Integer totalPage;
     Long totalCourse;

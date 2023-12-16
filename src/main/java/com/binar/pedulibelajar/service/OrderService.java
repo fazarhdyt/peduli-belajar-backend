@@ -9,7 +9,9 @@ import java.util.List;
 
 public interface OrderService {
 
-    void order(OrderRequest orderRequest);
+    void orderPremium(OrderRequest orderRequest);
+
+    void orderFree(String courseCode);
 
     List<StatusOrderResponse> getStatusOrders();
 
