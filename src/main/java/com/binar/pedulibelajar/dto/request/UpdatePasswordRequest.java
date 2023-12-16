@@ -1,6 +1,6 @@
 package com.binar.pedulibelajar.dto.request;
 
-public class UpdatePasswordDTO {
+public class UpdatePasswordRequest {
     private String oldPassword;
     private String newPassword;
     private String confirmPassword;
