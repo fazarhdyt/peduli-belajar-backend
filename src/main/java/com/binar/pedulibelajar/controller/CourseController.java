@@ -37,7 +37,7 @@ public class CourseController {
     }
 
     @GetMapping("/course/filter")
-    @Operation(summary = "api to get course by filter")
+    @Operation(summary = "api to get courses by filter")
     public ResponseEntity<Object> getCoursesByFilters(
             @RequestParam(required = false, defaultValue = "1") Integer page,
             @RequestParam(required = false, defaultValue = "3") Integer size,
@@ -51,7 +51,7 @@ public class CourseController {
     }
 
     @GetMapping("/course/my-course")
-    @Operation(summary = "api to get course by filter")
+    @Operation(summary = "api to get user coursea by filter")
     public ResponseEntity<Object> getMyCoursesByFilters(
             @RequestParam(required = false, defaultValue = "1") Integer page,
             @RequestParam(required = false, defaultValue = "3") Integer size,
@@ -67,26 +67,26 @@ public class CourseController {
     }
 
     @GetMapping("/admin/totalCourse")
-    @Operation(summary = "api to get total courses")
+    @Operation(summary = "api for admin to get total courses")
     public ResponseEntity<Object> getTotalCourses() {
         return ResponseData.statusResponse(courseService.getTotalCourse(), HttpStatus.OK, "success get total course");
     }
 
     @GetMapping("/admin/totalPremiumCourse")
-    @Operation(summary = "api to get total premium courses")
+    @Operation(summary = "api for admin to get total premium courses")
     public ResponseEntity<Object> getTotalPremiumCourses() {
         return ResponseData.statusResponse(courseService.getPremiumCourse(), HttpStatus.OK, "success get premium course");
     }
 
     @PostMapping("/admin/course")
-    @Operation(summary = "api to create course")
+    @Operation(summary = "api for admin to create course")
     public ResponseEntity<Object> createCourse(@Valid @RequestBody CourseRequest courseRequest) {
         return ResponseData.statusResponse(courseService.createCourse(courseRequest), HttpStatus.OK,
                 "success create course");
     }
 
     @PutMapping("/admin/course/{courseCode}")
-    @Operation(summary = "api to update course")
+    @Operation(summary = "api for admin to update course")
     public ResponseEntity<Object> updateCourse(@PathVariable String courseCode,
             @RequestBody CourseRequest courseRequest) {
         return ResponseData.statusResponse(courseService.updateCourse(courseCode, courseRequest), HttpStatus.OK,
@@ -94,7 +94,7 @@ public class CourseController {
     }
 
     @DeleteMapping("/admin/course/{courseCode}")
-    @Operation(summary = "api to delete course")
+    @Operation(summary = "api for admin to delete course")
     public ResponseEntity<Object> deleteCourse(@PathVariable String courseCode) {
         courseService.deleteCourse(courseCode);
         return ResponseData.statusResponse(null, HttpStatus.OK, "success delete course");
