@@ -5,6 +5,7 @@ import com.binar.pedulibelajar.dto.response.*;
 
 import com.binar.pedulibelajar.enumeration.CourseCategory;
 import com.binar.pedulibelajar.enumeration.CourseLevel;
+import com.binar.pedulibelajar.enumeration.Progress;
 import com.binar.pedulibelajar.enumeration.Type;
 
 import java.util.List;
@@ -14,10 +15,10 @@ public interface CourseService {
 
     DetailCourseResponse getCourseByCourseCode(String courseCode);
 
-    PaginationCourseResponse getCourseByFilters(Integer page, Integer size, List<CourseCategory> category, List<CourseLevel> level, List<Type> type, String title);
+    PaginationCourseResponse<DashboardCourseResponse> getCourseByFilters(Integer page, Integer size, List<CourseCategory> category, List<CourseLevel> level, List<Type> type, String title);
 
-    PaginationCourseResponse getMyCourse(Integer page, Integer size, List<CourseCategory> category,
-                                         List<CourseLevel> level, List<Type> type, String title);
+    PaginationCourseResponse<DashboardMyCourseResponse> getMyCourse(Integer page, Integer size, List<CourseCategory> category,
+                                                                    List<CourseLevel> level, List<Type> type, String progresses, String title);
 
     CreateCourseResponse createCourse(CourseRequest courseRequest);
 

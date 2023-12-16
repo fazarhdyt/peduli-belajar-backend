@@ -8,9 +8,8 @@ import lombok.Data;
 public class DashboardCourseResponse {
 
     private String courseCode;
-    private String thumbnail;
     private String title;
-    private CourseCategory category;
+    private CategoryResponse category;
     private String teacher;
     private CourseLevel level;
     private int modul;

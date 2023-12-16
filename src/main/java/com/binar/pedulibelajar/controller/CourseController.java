@@ -4,6 +4,7 @@ import com.binar.pedulibelajar.dto.request.CourseRequest;
 import com.binar.pedulibelajar.dto.response.ResponseData;
 import com.binar.pedulibelajar.enumeration.CourseCategory;
 import com.binar.pedulibelajar.enumeration.CourseLevel;
+import com.binar.pedulibelajar.enumeration.Progress;
 import com.binar.pedulibelajar.enumeration.Type;
 import com.binar.pedulibelajar.service.CourseService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -56,12 +57,13 @@ public class CourseController {
             @RequestParam(required = false, defaultValue = "1") Integer page,
             @RequestParam(required = false, defaultValue = "3") Integer size,
             @RequestParam(required = false) String title,
-            @RequestParam(required = false) List<CourseCategory> category,
-            @RequestParam(required = false) List<CourseLevel> level,
-            @RequestParam(required = false) List<Type> type) {
+            @RequestParam(required = false) String progresses,
+            @RequestParam(required = false) List<CourseCategory> categories,
+            @RequestParam(required = false) List<CourseLevel> levels,
+            @RequestParam(required = false) List<Type> types) {
 
         return ResponseData.statusResponse(
-                courseService.getMyCourse(page, size, category, level, type, title), HttpStatus.OK,
+                courseService.getMyCourse(page, size, categories, levels, types, progresses, title), HttpStatus.OK,
                 "success get my courses");
     }
 
