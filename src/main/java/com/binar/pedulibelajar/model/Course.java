@@ -44,7 +44,7 @@ public class Course {
 
     private double rating;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "category_id")
     private Category category;
 
