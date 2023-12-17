@@ -3,6 +3,7 @@ package com.binar.pedulibelajar.service;
 import com.binar.pedulibelajar.dto.request.EditProfileRequest;
 import com.binar.pedulibelajar.dto.request.ResetPasswordRequest;
 import com.binar.pedulibelajar.dto.request.UpdatePasswordRequest;
+import com.binar.pedulibelajar.dto.response.UserResponse;
 import com.binar.pedulibelajar.model.*;
 import com.binar.pedulibelajar.repository.*;
 import com.cloudinary.Cloudinary;
@@ -86,6 +87,13 @@ public class UserServiceImpl implements UserService {
                     userRepository.save(user);
                     resetPasswordService.deleteByEmail(user.getEmail());
                 });
+    }
+
+    @Override
+    public UserResponse getUser() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        return modelMapper.map(userRepository.findByEmail(email).orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "user not found")), UserResponse.class);
     }
 
     @Override

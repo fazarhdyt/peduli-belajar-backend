@@ -39,6 +39,12 @@ public class UserController {
         return ResponseData.statusResponse(null, HttpStatus.OK, "success reset password");
     }
 
+    @GetMapping("/user")
+    @Operation(summary = "api to get user profile")
+    public ResponseEntity<Object> getUser() {
+        return ResponseData.statusResponse(userService.getUser(), HttpStatus.OK, "success get user profile");
+    }
+
     @PutMapping("/user")
     @Operation(summary = "api for user to edit profile")
     public ResponseEntity<User> editProfile(
