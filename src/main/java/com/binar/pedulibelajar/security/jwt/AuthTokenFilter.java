@@ -1,7 +1,6 @@
 package com.binar.pedulibelajar.security.jwt;
 
 import com.binar.pedulibelajar.service.UserDetailsServiceImpl;
-import com.binar.pedulibelajar.service.UserServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

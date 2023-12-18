@@ -1,5 +1,6 @@
 package com.binar.pedulibelajar.model;
 
+import com.binar.pedulibelajar.enumeration.CourseCategory;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,14 +14,17 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @Entity
-public class SubjectType {
+public class Category {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
-    private String name;
+    @Enumerated(EnumType.STRING)
+    private CourseCategory categoryName;
 
-    @OneToMany(mappedBy = "subjectType")
-    private List<Subject> subject;
+    private String categoryImage;
+
+    @OneToMany(mappedBy = "category")
+    private List<Course> courses;
 }

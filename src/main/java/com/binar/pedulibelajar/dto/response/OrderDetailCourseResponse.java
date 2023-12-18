@@ -7,9 +7,9 @@ import lombok.Data;
 @Data
 public class OrderDetailCourseResponse {
 
-    private String category;
+    private CategoryResponse category;
     private String courseTitle;
-    private String authorCourse;
+    private String teacher;
     private double price;
     private double tax;
     private double totalPrice;

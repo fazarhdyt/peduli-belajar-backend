@@ -1,15 +1,16 @@
 package com.binar.pedulibelajar.service;
 
 import com.binar.pedulibelajar.dto.request.OrderRequest;
+import com.binar.pedulibelajar.dto.response.CategoryResponse;
+import com.binar.pedulibelajar.dto.response.OrderDetailCourseResponse;
 import com.binar.pedulibelajar.dto.response.PaymentHistoryResponse;
 import com.binar.pedulibelajar.dto.response.StatusOrderResponse;
+import com.binar.pedulibelajar.enumeration.Type;
 import com.binar.pedulibelajar.model.*;
-import com.binar.pedulibelajar.repository.CourseRepository;
-import com.binar.pedulibelajar.repository.OrderRepository;
-import com.binar.pedulibelajar.repository.UserCourseRepository;
-import com.binar.pedulibelajar.repository.UserRepository;
+import com.binar.pedulibelajar.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -33,18 +34,27 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private UserCourseRepository userCourseRepository;
 
-    @Override
-    public void order(OrderRequest orderRequest) {
+    @Autowired
+    private UserProgressRepository userProgressRepository;
 
-        if (orderRepository.existsUserOrder(orderRequest.getEmail(), orderRequest.getCourseCode())) {
+    @Override
+    public void orderPremium(OrderRequest orderRequest) {
+
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        if (orderRepository.existsUserOrder(email, orderRequest.getCourseCode())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "you have purchased this course");
         }
 
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "user not found"));
+
+        Course course = courseRepository.findByCourseCode(orderRequest.getCourseCode())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "course not found"));
+
         Order order = Order.builder()
-                .user(userRepository.findByEmail(orderRequest.getEmail())
-                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "user not found")))
-                .course(courseRepository.findByCourseCode(orderRequest.getCourseCode())
-                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "course not found")))
+                .user(user)
+                .course(course)
                 .paymentMethod(orderRequest.getPaymentMethod())
                 .paymentDate(new Date())
                 .paid(false)
@@ -52,6 +62,36 @@ public class OrderServiceImpl implements OrderService {
 
         orderRepository.save(order);
         storeToUserCourse(order);
+        userProgressRepository.save(new UserProgress(user, course));
+
+    }
+
+    @Override
+    public void orderFree(String courseCode) {
+
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        if (orderRepository.existsUserOrder(email, courseCode)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "you have purchased this course");
+        }
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "user not found"));
+
+        Course course = courseRepository.findByCourseCode(courseCode)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "course not found"));
+
+        Order order = Order.builder()
+                .user(user)
+                .course(course)
+                .paymentMethod(null)
+                .paymentDate(new Date())
+                .paid(true)
+                .build();
+
+        orderRepository.save(order);
+        storeToUserCourse(order);
+        userProgressRepository.save(new UserProgress(user, course));
 
     }
 
@@ -59,13 +99,16 @@ public class OrderServiceImpl implements OrderService {
     public List<StatusOrderResponse> getStatusOrders() {
 
         return orderRepository.findAll().stream()
-                .filter(order -> order.getCourse().getType().equalsIgnoreCase("PREMIUM"))
+                .filter(order -> order.getCourse().getType().equals(Type.PREMIUM))
                 .map(this::mapToStatusOrderResponse)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<PaymentHistoryResponse> getPaymentHistory(String email) {
+    public List<PaymentHistoryResponse> getPaymentHistory() {
+
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "user not found"));
 
@@ -74,11 +117,32 @@ public class OrderServiceImpl implements OrderService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public OrderDetailCourseResponse getOrderDetailCourse(String courseCode) {
+
+        Course course = courseRepository.findByCourseCode(courseCode)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "course not found"));
+
+        final double tax = 0.11;
+        double price = course.getPrice();
+        double calculateTax = tax * price;
+        double totalPrice = price + (price * tax);
+
+        return OrderDetailCourseResponse.builder()
+                .courseTitle(course.getTitle())
+                .category(mapToCategoryResponse(course.getCategory()))
+                .teacher(course.getTeacher())
+                .price(price)
+                .tax(calculateTax)
+                .totalPrice(totalPrice)
+                .build();
+    }
+
     private StatusOrderResponse mapToStatusOrderResponse(Order order) {
         SimpleDateFormat fmt = new SimpleDateFormat("dd-MM-yyyy HH:mm");
         StatusOrderResponse response = new StatusOrderResponse();
         response.setUsername(order.getUser().getFullName());
-        response.setCategory(order.getCourse().getCategory());
+        response.setCategory(order.getCourse().getCategory().getCategoryName());
         response.setTitle(order.getCourse().getTitle());
         response.setPaymentMethod(order.getPaymentMethod());
         response.setStatus(order.isPaid() ? "SUDAH BAYAR" : "BELUM BAYAR");
@@ -88,10 +152,13 @@ public class OrderServiceImpl implements OrderService {
 
     private PaymentHistoryResponse mapToPaymentHistoryResponse(Order order) {
         PaymentHistoryResponse response = new PaymentHistoryResponse();
-        response.setCategory(order.getCourse().getCategory());
+        response.setCourseCode(order.getCourse().getCourseCode());
+        response.setModul(order.getCourse().getChapter().size());
+        response.setCategory(mapToCategoryResponse(order.getCourse().getCategory()));
         response.setTitle(order.getCourse().getTitle());
         response.setTeacher(order.getCourse().getTeacher());
         response.setLevel(order.getCourse().getLevel());
+        response.setRating(order.getCourse().getRating());
         response.setStatus(order.isPaid() ? "Paid" : "Waiting for Payment");
         return response;
     }
@@ -103,10 +170,17 @@ public class OrderServiceImpl implements OrderService {
                 UserCourse userCourse = new UserCourse();
                 userCourse.setCourse(order.getCourse());
                 userCourse.setUser(order.getUser());
-                userCourse.setChapter(chapter.getChapterTitle());
-                userCourse.setSubject(subject.getVideoTitle());
+                userCourse.setChapterId(chapter.getId());
+                userCourse.setSubjectId(subject.getId());
                 userCourseRepository.save(userCourse);
             }
         }
+    }
+
+    private CategoryResponse mapToCategoryResponse(Category category) {
+        return CategoryResponse.builder()
+                .categoryName(category.getCategoryName())
+                .categoryImage(category.getCategoryImage())
+                .build();
     }
 }

@@ -1,24 +1,22 @@
 package com.binar.pedulibelajar.service;
 
 import com.binar.pedulibelajar.dto.request.CourseRequest;
-import com.binar.pedulibelajar.dto.response.CourseResponse;
-import com.binar.pedulibelajar.dto.response.CreateCourseResponse;
-import com.binar.pedulibelajar.dto.response.OrderDetailCourseResponse;
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import com.binar.pedulibelajar.dto.response.*;
+import com.binar.pedulibelajar.enumeration.CourseCategory;
+import com.binar.pedulibelajar.enumeration.CourseLevel;
+import com.binar.pedulibelajar.enumeration.Type;
 
 import java.util.List;
 
 public interface CourseService {
-    List<CourseResponse> getAllCourses();
+    List<DashboardCourseResponse> getAllCourses();
 
-    CourseResponse getCourseByCourseCode(String courseCode);
+    DetailCourseResponse getCourseByCourseCode(String courseCode);
 
-    Page<CourseResponse> getCourseByFilters(List<String> category, List<String> levels, List<String> types,
-            Pageable pageable);
-    // Page<CourseResponse> getCourseByFilters(List<ECategory> category,
-    // List<ELevel> level, List<EType> type, Pageable pageable);
+    PaginationCourseResponse<DashboardCourseResponse> getCourseByFilters(Integer page, Integer size, List<CourseCategory> category, List<CourseLevel> level, List<Type> type, String title);
+
+    PaginationCourseResponse<DashboardMyCourseResponse> getMyCourse(Integer page, Integer size, List<CourseCategory> category,
+                                                                    List<CourseLevel> level, List<Type> type, String progresses, String title);
 
     CreateCourseResponse createCourse(CourseRequest courseRequest);
 
@@ -26,5 +24,7 @@ public interface CourseService {
 
     void deleteCourse(String courseCode);
 
-    OrderDetailCourseResponse getOrderDetailCourse(String courseCode);
+    long getTotalCourse();
+
+    long getPremiumCourse();
 }

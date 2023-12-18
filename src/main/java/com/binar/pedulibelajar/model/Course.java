@@ -1,5 +1,8 @@
 package com.binar.pedulibelajar.model;
 
+import com.binar.pedulibelajar.enumeration.CourseCategory;
+import com.binar.pedulibelajar.enumeration.CourseLevel;
+import com.binar.pedulibelajar.enumeration.Type;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -22,14 +25,28 @@ public class Course {
     private String id;
 
     private String title;
+
+    @Column(unique = true)
     private String courseCode;
-    private String category;
-    private String type;
-    private String level;
+
+    @Enumerated(EnumType.STRING)
+    private Type type;
+
+    @Enumerated(EnumType.STRING)
+    private CourseLevel level;
+
     private double price;
+
+    @Column(columnDefinition = "text")
     private String description;
+
     private String teacher;
-    private String thumbnail;
+
+    private double rating;
+
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
 
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Chapter> chapter;
@@ -39,5 +56,8 @@ public class Course {
 
     @OneToMany(mappedBy = "course")
     private List<UserCourse> userCourses;
+
+    @OneToMany(mappedBy = "course")
+    private List<UserProgress> userProgresses;
 
 }
