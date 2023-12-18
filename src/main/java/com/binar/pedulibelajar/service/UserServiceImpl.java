@@ -52,6 +52,7 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private Cloudinary cloudinary;
 
+    @Autowired
     private TokenResetPasswordService resetPasswordService;
 
     @Autowired
