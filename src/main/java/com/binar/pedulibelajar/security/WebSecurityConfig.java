@@ -42,7 +42,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .authorizeRequests()
                 .antMatchers("/api/auth/**", "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/api/course/**",
-                        "/api/auth/reset-password", "/api/auth/reset-password/**")
+                        "/api/user/reset-password", "/api/user/reset-password/**")
                 .permitAll()
                 .antMatchers("/api/order/**", "/api/user/**")
                 .hasAuthority(ERole.USER.name())
