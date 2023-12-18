@@ -22,7 +22,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.transaction.Transactional;
@@ -170,10 +169,13 @@ public class UserServiceImpl implements UserService {
 
         modelMapper.map(editProfileRequest, existingUser);
 
-        if (editProfileRequest != null && !editProfileRequest.getProfilePicture().isEmpty()) {
+        if (editProfileRequest != null && editProfileRequest.getProfilePicture() != null &&
+                !editProfileRequest.getProfilePicture().isEmpty()) {
             try {
-                Map<?, ?> uploadResult = cloudinary.uploader().upload(editProfileRequest.getProfilePicture().getBytes(),
-                        ObjectUtils.emptyMap());
+                Map<?, ?> uploadResult = cloudinary.uploader().upload(
+                        editProfileRequest.getProfilePicture().getBytes(),
+                        ObjectUtils.emptyMap()
+                );
                 String imageUrl = uploadResult.get("url").toString();
                 existingUser.setProfilePictureUrl(imageUrl);
             } catch (IOException e) {
