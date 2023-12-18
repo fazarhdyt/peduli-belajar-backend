@@ -31,6 +31,13 @@ public class Course {
     private String teacher;
     private String thumbnail;
 
-    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Chapter> chapter;
+
+    @OneToMany(mappedBy = "course")
+    private List<Order> order;
+
+    @OneToMany(mappedBy = "course")
+    private List<UserCourse> userCourses;
+
 }

@@ -24,7 +24,7 @@ public class Chapter {
     private int chapterNo;
     private String chapterTitle;
 
-    @OneToMany(mappedBy = "chapter", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "chapter", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Subject> subject;
 
     @ManyToOne

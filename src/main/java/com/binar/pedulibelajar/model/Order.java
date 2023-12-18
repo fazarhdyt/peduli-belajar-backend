@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
+import java.util.Date;
 
 @Data
 @NoArgsConstructor
@@ -32,5 +33,7 @@ public class Order {
     private boolean paid;
 
     private String paymentMethod;
+
+    private Date paymentDate;
 
 }

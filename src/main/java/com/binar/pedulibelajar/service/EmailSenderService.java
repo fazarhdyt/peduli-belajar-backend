@@ -1,6 +1,11 @@
 package com.binar.pedulibelajar.service;
 
+import com.binar.pedulibelajar.model.OTP;
+import com.binar.pedulibelajar.model.TokenResetPassword;
+
 public interface EmailSenderService {
 
-    void sendMail(String toEmail, String subject, String body);
+    void sendMailOtp(String toEmail, OTP otp);
+
+    void sendMailLinkResetPassword(String toEmail, TokenResetPassword token);
 }

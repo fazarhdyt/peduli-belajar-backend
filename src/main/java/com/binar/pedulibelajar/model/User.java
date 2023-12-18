@@ -11,13 +11,14 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 @Data
 @Entity
 @Table(name = "users", uniqueConstraints = {
         @UniqueConstraint(columnNames = "email")
 })
-public class User implements UserDetails{
+public class User implements UserDetails {
 
     @Id
     @GeneratedValue(generator = "UUID")
@@ -47,6 +48,12 @@ public class User implements UserDetails{
 
     @Enumerated(EnumType.STRING)
     private ERole role;
+
+    @OneToMany(mappedBy = "user")
+    private List<Order> order;
+
+    @OneToMany(mappedBy = "user")
+    private List<UserCourse> userCourses;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

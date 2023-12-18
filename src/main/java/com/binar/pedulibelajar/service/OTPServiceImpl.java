@@ -18,10 +18,10 @@ import com.binar.pedulibelajar.repository.UserRepository;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
-public class OTPServiceImpl implements OTPService{
+public class OTPServiceImpl implements OTPService {
 
     @Value("${pedulibelajar.otpExpirationMs}")
-    private Long otpTokenDurationMs;
+    private Long otpDurationMs;
 
     @Autowired
     private OTPRepository otpRepository;
@@ -36,11 +36,10 @@ public class OTPServiceImpl implements OTPService{
 
     @Override
     public OTP createOTP(String email) {
-        if(!userRepository.existsByEmail(email)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User not found");
-        }
 
-        User user = userRepository.findByEmail(email).get();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
         OTP otp = otpRepository.findByUserId(user.getId());
 
         if (otp == null) {
@@ -51,7 +50,7 @@ public class OTPServiceImpl implements OTPService{
         int randomOtp = rnd.nextInt(999999);
 
         otp.setUser(user);
-        otp.setExpiryDate(Instant.now().plusMillis(otpTokenDurationMs));
+        otp.setExpiryDate(Instant.now().plusMillis(otpDurationMs));
         otp.setOtp(String.format("%06d", randomOtp));
 
         otpRepository.save(otp);
@@ -62,7 +61,7 @@ public class OTPServiceImpl implements OTPService{
     public OTP verifyExpiration(OTP otp) {
         if (otp.getExpiryDate().compareTo(Instant.now()) < 0) {
             otpRepository.delete(otp);
-            throw new RuntimeException("otp was expired");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "OTP was expired");
         }
         return otp;
     }
@@ -70,6 +69,7 @@ public class OTPServiceImpl implements OTPService{
     @Override
     @Transactional
     public void deleteByEmail(String email) {
-        otpRepository.deleteByUser(userRepository.findByEmail(email).get());
+        otpRepository.deleteByUser(userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found")));
     }
 }

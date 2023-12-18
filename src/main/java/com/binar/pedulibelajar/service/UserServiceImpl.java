@@ -2,12 +2,15 @@ package com.binar.pedulibelajar.service;
 
 import com.binar.pedulibelajar.dto.request.EditProfileRequest;
 import com.binar.pedulibelajar.dto.request.LoginRequest;
+import com.binar.pedulibelajar.dto.request.ResetPasswordRequest;
 import com.binar.pedulibelajar.dto.request.SignupRequest;
 import com.binar.pedulibelajar.dto.response.JwtResponse;
 import com.binar.pedulibelajar.model.ERole;
 import com.binar.pedulibelajar.model.OTP;
+import com.binar.pedulibelajar.model.TokenResetPassword;
 import com.binar.pedulibelajar.model.User;
 import com.binar.pedulibelajar.repository.OTPRepository;
+import com.binar.pedulibelajar.repository.TokenResetPasswordRepository;
 import com.binar.pedulibelajar.repository.UserRepository;
 import com.binar.pedulibelajar.security.jwt.JwtUtils;
 import com.cloudinary.Cloudinary;
@@ -24,6 +27,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
 import java.io.IOException;
 import java.time.ZoneId;
@@ -62,22 +67,32 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private  Cloudinary cloudinary;
 
+    private TokenResetPasswordService resetPasswordService;
+
+    @Autowired
+    private TokenResetPasswordRepository tokenResetPasswordRepository;
 
     @Override
-    public JwtResponse authenticateUser(LoginRequest loginRequest) {
-        User user = modelMapper.map(loginRequest, User.class);
+    public JwtResponse authenticateUser(LoginRequest loginRequest, HttpServletResponse response) {
+        User user = userRepository.findByEmail(loginRequest.getEmail())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "user not found"));
+
+        if (!user.isActive()) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "account has not been verified");
+        }
 
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword()));
+                new UsernamePasswordAuthenticationToken(user.getEmail(), loginRequest.getPassword()));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         User userDetails = (User) authentication.getPrincipal();
         String jwt = jwtUtils.generateJwtToken(authentication);
 
-//        List<String> roles = userDetails.getAuthorities().stream()
-//                .map(GrantedAuthority::getAuthority)
-//                .collect(Collectors.toList());
+        Cookie jwtCookie = new Cookie("JWT_TOKEN", jwt);
+        jwtCookie.setMaxAge(3600);
+        jwtCookie.setPath("/");
+        response.addCookie(jwtCookie);
 
         return new JwtResponse(jwt,
                 userDetails.getEmail(),
@@ -87,9 +102,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Async
-    public User registerUser(SignupRequest signupRequest){
+    public User registerUser(SignupRequest signupRequest) {
         boolean userExist = userRepository.findByEmail(signupRequest.getEmail()).isPresent();
-        if(userExist){
+        if (userExist) {
             throw new RuntimeException(
                     String.format("user with email '%s' already exist", signupRequest.getEmail()));
         }
@@ -103,21 +118,17 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
 
         OTP otp = otpService.createOTP(user.getEmail());
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss dd-MM-yyyy");
-        ZonedDateTime zonedDateTime = otp.getExpiryDate().atZone(ZoneId.systemDefault());
 
-        String subject = "Account Verification";
-        String body = "Your OTP : " + otp.getOtp() + " valid until " + formatter.format(zonedDateTime);
-        senderService.sendMail(user.getEmail(), subject, body);
+        senderService.sendMailOtp(user.getEmail(), otp);
 
         return user;
     }
 
     @Override
     @Async
-    public User registerAdmin(SignupRequest signupRequest){
+    public User registerAdmin(SignupRequest signupRequest) {
         boolean userExist = userRepository.findByEmail(signupRequest.getEmail()).isPresent();
-        if(userExist){
+        if (userExist) {
             throw new RuntimeException(
                     String.format("user with email '%s' already exist", signupRequest.getEmail()));
         }
@@ -132,9 +143,7 @@ public class UserServiceImpl implements UserService {
 
         OTP otp = otpService.createOTP(user.getEmail());
 
-        String subject = "Account Verification";
-        String body = "Your OTP : " + otp.getOtp();
-        senderService.sendMail(user.getEmail(), subject, body);
+        senderService.sendMailOtp(user.getEmail(), otp);
 
         return user;
     }
@@ -142,11 +151,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public void verifyAccount(String email, String otp) {
 
-        if(!userRepository.existsByEmail(email)) {
+        if (!userRepository.existsByEmail(email)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User not found");
         }
 
-        if(!otpRepository.existsByOtp(otp)) {
+        if (!otpRepository.existsByOtp(otp)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid OTP code");
         }
 
@@ -163,7 +172,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User editProfile(EditProfileRequest editProfileRequest) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-
+        
         User existingUser = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -184,6 +193,47 @@ public class UserServiceImpl implements UserService {
         }
 
         return userRepository.save(existingUser);
+    }
+
+    public void regenerateOtp(String email) {
+
+        User user = userRepository.findByEmail(email).orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "email not found"));
+        OTP otp = otpService.createOTP(user.getEmail());
+
+        senderService.sendMailOtp(user.getEmail(), otp);
+    }
+
+    @Override
+    @Async
+    public void generateLinkResetPassword(String email) {
+
+        User user = userRepository.findByEmail(email).orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "email not found"));
+        TokenResetPassword token = resetPasswordService.createToken(user.getEmail());
+
+        senderService.sendMailLinkResetPassword(user.getEmail(), token);
+    }
+
+    @Override
+    public void resetPassword(String token, ResetPasswordRequest resetPasswordRequest) {
+
+        if (!tokenResetPasswordRepository.existsByToken(token)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "link not valid");
+        }
+
+        resetPasswordService.findByToken(token)
+                .map(resetPasswordService::verifyExpiration)
+                .map(TokenResetPassword::getUser)
+                .ifPresent(user -> {
+                    if (!resetPasswordRequest.getPassword().equals(resetPasswordRequest.getConfirmPassword())) {
+                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "password not match");
+                    }
+                    String encodedPassword = bCryptPasswordEncoder.encode(resetPasswordRequest.getPassword());
+                    user.setPassword(encodedPassword);
+                    userRepository.save(user);
+                    resetPasswordService.deleteByEmail(user.getEmail());
+                });
     }
 
 }
