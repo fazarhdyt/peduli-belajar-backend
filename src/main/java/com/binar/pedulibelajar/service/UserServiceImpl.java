@@ -58,6 +58,9 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private TokenResetPasswordRepository tokenResetPasswordRepository;
 
+    @Autowired
+    private OrderRepository orderRepository;
+
     @Override
     @Async
     public void generateLinkResetPassword(String email) {
@@ -162,7 +165,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public long getActiveUser() {
-        return userRepository.countActiveUsers();
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "user not found"));
+        return orderRepository.countActiveUsers(user.getFullName());
     }
 
     private int getTotalSubjectCount(Course course) {

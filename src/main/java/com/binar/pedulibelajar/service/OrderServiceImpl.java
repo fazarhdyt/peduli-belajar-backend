@@ -56,7 +56,7 @@ public class OrderServiceImpl implements OrderService {
                 .user(user)
                 .course(course)
                 .paymentMethod(orderRequest.getPaymentMethod())
-                .paymentDate(new Date())
+                .paymentDate(null)
                 .paid(false)
                 .build();
 
@@ -96,9 +96,26 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public void resolveOrder(String orderId) {
+
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "order not found"));
+        if (order.isPaid()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "order already resolved");
+        }
+        order.setPaid(true);
+        order.setPaymentDate(new Date());
+        orderRepository.save(order);
+    }
+
+    @Override
     public List<StatusOrderResponse> getStatusOrders() {
 
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "user not found"));
         return orderRepository.findAll().stream()
+                .filter(order -> order.getCourse().getTeacher().equals(user.getFullName()))
                 .filter(order -> order.getCourse().getType().equals(Type.PREMIUM))
                 .map(this::mapToStatusOrderResponse)
                 .collect(Collectors.toList());

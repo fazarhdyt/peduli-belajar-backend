@@ -4,8 +4,6 @@ import com.binar.pedulibelajar.enumeration.CourseCategory;
 import com.binar.pedulibelajar.enumeration.PaymentMethod;
 import lombok.Data;
 
-import java.util.Date;
-
 @Data
 public class StatusOrderResponse {
 
