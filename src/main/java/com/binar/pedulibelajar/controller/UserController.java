@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 @CrossOrigin("*")
 @RestController
-@RequestMapping("/api/user")
+@RequestMapping("/api")
 public class UserController {
 
     @Autowired
@@ -45,7 +45,7 @@ public class UserController {
         return ResponseData.statusResponse(userService.getUser(), HttpStatus.OK, "success get user profile");
     }
 
-    @PutMapping("/{email}")
+    @PutMapping("user/{email}")
     @Operation(summary = "api to edit profile")
     public ResponseEntity<User> editProfile(
             @ModelAttribute EditProfileRequest editProfileRequest) {
