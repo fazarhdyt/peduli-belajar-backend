@@ -4,7 +4,6 @@ import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -14,7 +13,7 @@ import java.util.Map;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class CloudinaryServiceImpl implements CloudinaryService{
+public class CloudinaryServiceImpl implements CloudinaryService {
 
     private final Cloudinary cloudinary;
 
@@ -24,8 +23,7 @@ public class CloudinaryServiceImpl implements CloudinaryService{
         try {
             Map<?, ?> uploadResult = cloudinary.uploader().upload(multipartFile.getBytes(),
                     ObjectUtils.emptyMap());
-            String imageUrl = uploadResult.get("url").toString();
-            return imageUrl;
+            return uploadResult.get("url").toString();
         } catch (IOException e) {
             e.printStackTrace();
         }
