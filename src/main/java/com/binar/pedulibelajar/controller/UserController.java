@@ -61,7 +61,7 @@ public class UserController {
         }
     }
 
-    @PutMapping("/user/updatePassword")
+    @PutMapping("/user/update-password")
     @Operation(summary = "api to user update password")
     public ResponseEntity<Object> updatePassword(@RequestBody UpdatePasswordRequest updatePasswordRequest) {
         userService.updatePassword(updatePasswordRequest);
@@ -74,7 +74,7 @@ public class UserController {
         return ResponseData.statusResponse(userService.progressUser(courseCode, subjectId), HttpStatus.OK, "success");
     }
 
-    @GetMapping("/admin/activeUser")
+    @GetMapping("/admin/active-user")
     @Operation(summary = "api for admin to get active user")
     public ResponseEntity<Object> getActiveUser() {
         return ResponseData.statusResponse(userService.getActiveUser(), HttpStatus.OK, "success get active user");
