@@ -1,6 +1,8 @@
 package com.binar.pedulibelajar.service;
 
-import com.binar.pedulibelajar.dto.request.*;
+import com.binar.pedulibelajar.dto.request.EditProfileRequest;
+import com.binar.pedulibelajar.dto.request.ResetPasswordRequest;
+import com.binar.pedulibelajar.dto.request.UpdatePasswordRequest;
 import com.binar.pedulibelajar.dto.response.UserResponse;
 import com.binar.pedulibelajar.model.User;
 
@@ -19,4 +21,5 @@ public interface UserService {
     long getActiveUser();
 
     void updatePassword(UpdatePasswordRequest updatePasswordDTO);
+
 }

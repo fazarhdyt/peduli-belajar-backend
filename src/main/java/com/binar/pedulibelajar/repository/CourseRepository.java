@@ -32,27 +32,28 @@ public interface CourseRepository extends JpaRepository<Course, String> {
                         Pageable pageable);
 
         @Query("SELECT c FROM Course c " +
-                "JOIN UserProgress up ON c.id = up.course.id " +
-                "JOIN Order o ON c.id = o.course.id " +
-                "WHERE up.user.email = :email " +
-                "AND (c.category IN (:category) OR :category IS NULL) " +
-                "AND (c.level IN (:level) OR :level IS NULL) " +
-                "AND (c.type IN (:type) OR :type IS NULL) " +
-                "AND (:progress IS NULL OR (up.percent = 100 AND :progress = 'done') OR (up.percent < 100 AND :progress = 'in progress'))" +
-                "AND (:title IS NULL OR (LOWER(c.title) LIKE LOWER(CONCAT('%', :title, '%'))))")
+                        "JOIN UserProgress up ON c.id = up.course.id " +
+                        "JOIN Order o ON c.id = o.course.id " +
+                        "WHERE up.user.email = :email " +
+                        "AND (c.category IN (:category) OR :category IS NULL) " +
+                        "AND (c.level IN (:level) OR :level IS NULL) " +
+                        "AND (c.type IN (:type) OR :type IS NULL) " +
+                        "AND (:progress IS NULL OR (up.percent = 100 AND :progress = 'done') OR (up.percent < 100 AND :progress = 'in progress'))"
+                        +
+                        "AND (:title IS NULL OR (LOWER(c.title) LIKE LOWER(CONCAT('%', :title, '%'))))")
         Optional<Page<Course>> findMyCourseByFilters(
-                @Param("category") List<CourseCategory> categories,
-                @Param("level") List<CourseLevel> levels,
-                @Param("type") List<Type> types,
-                @Param("progress") String progress,
-                @Param("title") String title,
-                @Param("email") String email,
-                Pageable pageable);
+                        @Param("category") List<CourseCategory> categories,
+                        @Param("level") List<CourseLevel> levels,
+                        @Param("type") List<Type> types,
+                        @Param("progress") String progress,
+                        @Param("title") String title,
+                        @Param("email") String email,
+                        Pageable pageable);
 
-        @Query("SELECT COUNT(c) FROM Course c")
-        long countTotalCourses();
+        @Query("SELECT COUNT(c) FROM Course c WHERE c.teacher = :teacher")
+        long countTotalCourses(@Param("teacher") String teacher);
 
-        @Query("SELECT COUNT(c) FROM Course c WHERE c.type = 'PREMIUM'")
-        long countPremiumCourses();
+        @Query("SELECT COUNT(c) FROM Course c WHERE c.teacher = :teacher AND c.type = 'PREMIUM'")
+        long countPremiumCourses(@Param("teacher") String teacher);
 
 }

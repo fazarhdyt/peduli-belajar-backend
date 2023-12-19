@@ -11,11 +11,12 @@ import com.binar.pedulibelajar.model.Category;
 import com.binar.pedulibelajar.model.Chapter;
 import com.binar.pedulibelajar.model.Course;
 import com.binar.pedulibelajar.model.Subject;
+import com.binar.pedulibelajar.model.User;
 import com.binar.pedulibelajar.repository.CategoryRepository;
 import com.binar.pedulibelajar.repository.ChapterRepository;
 import com.binar.pedulibelajar.repository.CourseRepository;
 import com.binar.pedulibelajar.repository.SubjectRepository;
-import com.cloudinary.Cloudinary;
+import com.binar.pedulibelajar.repository.UserRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -49,13 +50,13 @@ public class CourseServiceImpl implements CourseService {
     private ModelMapper modelMapper;
 
     @Autowired
-    private Cloudinary cloudinary;
-
-    @Autowired
     private CategoryRepository categoryRepository;
 
     @Autowired
     private OrderService orderService;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Override
     public List<DashboardCourseResponse> getAllCourses() {
@@ -88,7 +89,8 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public PaginationCourseResponse<DashboardCourseResponse> getCourseByFilters(Integer page, Integer size, List<CourseCategory> category,
+    public PaginationCourseResponse<DashboardCourseResponse> getCourseByFilters(Integer page, Integer size,
+            List<CourseCategory> category,
             List<CourseLevel> levels, List<Type> types, String title) {
         page -= 1;
         Pageable pages = PageRequest.of(page, size);
@@ -98,19 +100,26 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public PaginationCourseResponse<DashboardMyCourseResponse> getMyCourse(Integer page, Integer size, List<CourseCategory> categories,
-                                                                           List<CourseLevel> levels, List<Type> types, String progresses, String title) {
+    public PaginationCourseResponse<DashboardMyCourseResponse> getMyCourse(Integer page, Integer size,
+            List<CourseCategory> categories,
+            List<CourseLevel> levels, List<Type> types, String progresses, String title) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         page -= 1;
         Pageable pages = PageRequest.of(page, size);
-        Page<Course> courses = courseRepository.findMyCourseByFilters(categories, levels, types, progresses, title, email, pages)
+        Page<Course> courses = courseRepository
+                .findMyCourseByFilters(categories, levels, types, progresses, title, email, pages)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "course not found"));
         return mapToPaginationMyCourseResponse(courses);
     }
 
     @Override
     public CreateCourseResponse createCourse(CourseRequest courseRequest) {
-        Course course = courseRepository.save(mapToEntityCourse(courseRequest));
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        Course course = mapToEntityCourse(courseRequest);
+        course.setTeacher(userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "user not found"))
+                .getFullName());
+        courseRepository.save(course);
 
         List<Chapter> chapters = course.getChapter();
         for (Chapter chapter : chapters) {
@@ -127,21 +136,50 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public CreateCourseResponse updateCourse(String courseCode, CourseRequest courseRequest) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        Course existingCourse = courseRepository.findByCourseCode(courseCode)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "course not found"));
 
-        return courseRepository.findByCourseCode(courseCode)
-                .map(existingCourse -> {
-                    existingCourse.setTitle(courseRequest.getTitle());
-                    existingCourse.setCourseCode(courseRequest.getCourseCode());
-                    existingCourse.setLevel(courseRequest.getLevel());
-                    existingCourse.setType(courseRequest.getType());
-                    existingCourse.setCategory(categoryRepository.findByCategoryName(courseRequest.getCategory().getCategoryName())
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "category not found")));
-                    existingCourse.setDescription(courseRequest.getDescription());
-                    existingCourse.setPrice(courseRequest.getPrice());
-                    existingCourse.setTeacher(courseRequest.getTeacher());
-                    Course updatedCourse = courseRepository.save(existingCourse);
-                    return modelMapper.map(updatedCourse, CreateCourseResponse.class);
-                }).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "course not found"));
+        Course updateCourse = mapToEntityCourse(courseRequest);
+
+        existingCourse.setTeacher(userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "user not found"))
+                .getFullName());
+        existingCourse.setTitle(updateCourse.getTitle());
+        existingCourse.setCourseCode(updateCourse.getCourseCode());
+        existingCourse.setLevel(updateCourse.getLevel());
+        existingCourse.setType(updateCourse.getType());
+        existingCourse.setCategory(categoryRepository.findByCategoryName(updateCourse.getCategory().getCategoryName())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "category not found")));
+        existingCourse.setDescription(updateCourse.getDescription());
+        existingCourse.setPrice(updateCourse.getPrice());
+        existingCourse.setTeacher(updateCourse.getTeacher());
+        courseRepository.save(existingCourse);
+        // existingCourse.getChapter().clear();
+
+        List<Chapter> chapters = existingCourse.getChapter();
+        for (int i = 0; i < chapters.size(); i++) {
+            Chapter chapter = chapters.get(i);
+            Chapter updateChapter = updateCourse.getChapter().get(i);
+            chapter.setCourse(existingCourse);
+            chapter.setChapterNo(updateChapter.getChapterNo());
+            chapter.setChapterTitle(updateChapter.getChapterTitle());
+            chapterRepository.save(chapter);
+
+            List<Subject> subjects = chapter.getSubject();
+            for (int j = 0; j < subjects.size(); j++) {
+                Subject subject = subjects.get(j);
+                Subject updateSubject = updateCourse.getChapter().get(i).getSubject().get(j);
+                subject.setChapter(chapter);
+                subject.setSubjectNo(updateSubject.getSubjectNo());
+                subject.setSubjectType(updateSubject.getSubjectType());
+                subject.setVideoTitle(updateSubject.getVideoTitle());
+                subject.setVideoLink(updateSubject.getVideoLink());
+                subjectRepository.save(subject);
+            }
+        }
+        return modelMapper.map(courseRequest, CreateCourseResponse.class);
     }
 
     @Override
@@ -151,12 +189,18 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public long getTotalCourse() {
-        return courseRepository.countTotalCourses();
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "user not found"));
+        return courseRepository.countTotalCourses(user.getFullName());
     }
 
     @Override
     public long getPremiumCourse() {
-        return courseRepository.countPremiumCourses();
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "user not found"));
+        return courseRepository.countPremiumCourses(user.getFullName());
     }
 
     private DetailCourseResponse mapToDetailCourseResponse(Course course) {
@@ -164,7 +208,7 @@ public class CourseServiceImpl implements CourseService {
         response.setId(course.getId());
         response.setTitle(course.getTitle());
         response.setCourseCode(course.getCourseCode());
-        response.setCategory(course.getCategory().getCategoryName());
+        response.setCategory(mapToCategoryResponse(course.getCategory()));
         response.setType(course.getType());
         response.setLevel(course.getLevel());
         response.setPrice(course.getPrice());
@@ -185,7 +229,7 @@ public class CourseServiceImpl implements CourseService {
         response.setId(course.getId());
         response.setTitle(course.getTitle());
         response.setCourseCode(course.getCourseCode());
-        response.setCategory(course.getCategory().getCategoryName());
+        response.setCategory(mapToCategoryResponse(course.getCategory()));
         response.setType(course.getType());
         response.setLevel(course.getLevel());
         response.setPrice(course.getPrice());
@@ -269,12 +313,12 @@ public class CourseServiceImpl implements CourseService {
         course.setTitle(courseRequest.getTitle());
         course.setCourseCode(courseRequest.getCourseCode());
         course.setCategory(categoryRepository.findByCategoryName(courseRequest.getCategory().getCategoryName())
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "category not found")));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "category not found")));
         course.setType(courseRequest.getType());
         course.setLevel(courseRequest.getLevel());
         course.setPrice(courseRequest.getPrice());
         course.setDescription(courseRequest.getDescription());
-        course.setTeacher(courseRequest.getTeacher());
+//        course.setTeacher(courseRequest.getTeacher());
         course.setRating(0);
         List<Chapter> chapter = courseRequest.getChapter().stream()
                 .map(this::mapToEntityChapter)
@@ -357,6 +401,5 @@ public class CourseServiceImpl implements CourseService {
                 .categoryImage(category.getCategoryImage())
                 .build();
     }
-
 
 }

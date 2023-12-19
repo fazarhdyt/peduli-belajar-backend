@@ -13,8 +13,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@CrossOrigin("*")
 @Slf4j
+@CrossOrigin("*")
 @RestController
 @RequestMapping("/api")
 public class UserController {
@@ -45,24 +45,23 @@ public class UserController {
         return ResponseData.statusResponse(userService.getUser(), HttpStatus.OK, "success get user profile");
     }
 
-    @PutMapping("/user")
-    @Operation(summary = "api for user to edit profile")
+    @PutMapping("user/{email}")
+    @Operation(summary = "api to edit profile")
     public ResponseEntity<User> editProfile(
             @ModelAttribute EditProfileRequest editProfileRequest) {
         if (editProfileRequest != null) {
-            // log.info("File name: {}",
-            // editProfileRequest.getProfilPicture().getOriginalFilename());
-            if (!editProfileRequest.getProfilePicture().isEmpty()) {
-                userService.editProfile(editProfileRequest);
-            } else {
-                log.warn("Empty file");
+            try {
+                User updatedUser = userService.editProfile(editProfileRequest);
+                return ResponseEntity.ok(updatedUser);
+            } catch (RuntimeException e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
             }
+        } else {
+            return ResponseEntity.badRequest().build();
         }
-        User updatedUser = userService.editProfile(editProfileRequest);
-        return ResponseEntity.ok(updatedUser);
     }
 
-    @PutMapping("/user/updatePassword")
+    @PutMapping("/user/update-password")
     @Operation(summary = "api to user update password")
     public ResponseEntity<Object> updatePassword(@RequestBody UpdatePasswordRequest updatePasswordRequest) {
         userService.updatePassword(updatePasswordRequest);
@@ -75,7 +74,7 @@ public class UserController {
         return ResponseData.statusResponse(userService.progressUser(courseCode, subjectId), HttpStatus.OK, "success");
     }
 
-    @GetMapping("/admin/activeUser")
+    @GetMapping("/admin/active-user")
     @Operation(summary = "api for admin to get active user")
     public ResponseEntity<Object> getActiveUser() {
         return ResponseData.statusResponse(userService.getActiveUser(), HttpStatus.OK, "success get active user");

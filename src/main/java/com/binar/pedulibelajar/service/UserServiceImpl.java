@@ -58,6 +58,9 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private TokenResetPasswordRepository tokenResetPasswordRepository;
 
+    @Autowired
+    private OrderRepository orderRepository;
+
     @Override
     @Async
     public void generateLinkResetPassword(String email) {
@@ -106,9 +109,11 @@ public class UserServiceImpl implements UserService {
 
         modelMapper.map(editProfileRequest, existingUser);
 
-        if (editProfileRequest != null && !editProfileRequest.getProfilePicture().isEmpty()) {
+        if (editProfileRequest != null && editProfileRequest.getProfilePicture() != null &&
+                !editProfileRequest.getProfilePicture().isEmpty()) {
             try {
-                Map<?, ?> uploadResult = cloudinary.uploader().upload(editProfileRequest.getProfilePicture().getBytes(),
+                Map<?, ?> uploadResult = cloudinary.uploader().upload(
+                        editProfileRequest.getProfilePicture().getBytes(),
                         ObjectUtils.emptyMap());
                 String imageUrl = uploadResult.get("url").toString();
                 existingUser.setProfilePictureUrl(imageUrl);
@@ -132,7 +137,7 @@ public class UserServiceImpl implements UserService {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Old password is incorrect");
         }
 
-        if(!updatePasswordRequest.getNewPassword().equals(updatePasswordRequest.getConfirmPassword())) {
+        if (!updatePasswordRequest.getNewPassword().equals(updatePasswordRequest.getConfirmPassword())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "password not match");
         }
 
@@ -160,7 +165,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public long getActiveUser() {
-        return userRepository.countActiveUsers();
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "user not found"));
+        return orderRepository.countActiveUsers(user.getFullName());
     }
 
     private int getTotalSubjectCount(Course course) {

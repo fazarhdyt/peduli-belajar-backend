@@ -13,10 +13,12 @@ public interface CourseService {
 
     DetailCourseResponse getCourseByCourseCode(String courseCode);
 
-    PaginationCourseResponse<DashboardCourseResponse> getCourseByFilters(Integer page, Integer size, List<CourseCategory> category, List<CourseLevel> level, List<Type> type, String title);
+    PaginationCourseResponse<DashboardCourseResponse> getCourseByFilters(Integer page, Integer size,
+            List<CourseCategory> categories, List<CourseLevel> levels, List<Type> types, String title);
 
-    PaginationCourseResponse<DashboardMyCourseResponse> getMyCourse(Integer page, Integer size, List<CourseCategory> category,
-                                                                    List<CourseLevel> level, List<Type> type, String progresses, String title);
+    PaginationCourseResponse<DashboardMyCourseResponse> getMyCourse(Integer page, Integer size,
+            List<CourseCategory> categories,
+            List<CourseLevel> levels, List<Type> types, String progresses, String title);
 
     CreateCourseResponse createCourse(CourseRequest courseRequest);
 

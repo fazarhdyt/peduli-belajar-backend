@@ -26,6 +26,13 @@ public class OrderController {
         return ResponseData.statusResponse(null, HttpStatus.OK, "success order course");
     }
 
+    @PutMapping("/order/resolve")
+    @Operation(summary = "api to resolve order")
+    public ResponseEntity<Object> resolveOrder(@RequestParam String orderId) {
+        orderService.resolveOrder(orderId);
+        return ResponseData.statusResponse(null, HttpStatus.OK, "successfully completed the order");
+    }
+
     @GetMapping("/order/{courseCode}")
     @Operation(summary = "api for user to get detail order")
     public ResponseEntity<Object> getPaymentHistory(@PathVariable String courseCode) {

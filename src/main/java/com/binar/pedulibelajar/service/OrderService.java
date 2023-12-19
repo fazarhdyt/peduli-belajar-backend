@@ -13,6 +13,8 @@ public interface OrderService {
 
     void orderFree(String courseCode);
 
+    void resolveOrder(String orderId);
+
     List<StatusOrderResponse> getStatusOrders();
 
     List<PaymentHistoryResponse> getPaymentHistory();

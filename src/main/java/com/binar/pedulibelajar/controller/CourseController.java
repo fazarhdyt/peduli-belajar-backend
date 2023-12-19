@@ -66,13 +66,13 @@ public class CourseController {
                 "success get my courses");
     }
 
-    @GetMapping("/admin/totalCourse")
+    @GetMapping("/admin/total-course")
     @Operation(summary = "api for admin to get total courses")
     public ResponseEntity<Object> getTotalCourses() {
         return ResponseData.statusResponse(courseService.getTotalCourse(), HttpStatus.OK, "success get total course");
     }
 
-    @GetMapping("/admin/totalPremiumCourse")
+    @GetMapping("/admin/total-premium-course")
     @Operation(summary = "api for admin to get total premium courses")
     public ResponseEntity<Object> getTotalPremiumCourses() {
         return ResponseData.statusResponse(courseService.getPremiumCourse(), HttpStatus.OK, "success get premium course");
