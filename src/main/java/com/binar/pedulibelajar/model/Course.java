@@ -1,15 +1,21 @@
 package com.binar.pedulibelajar.model;
 
-import com.binar.pedulibelajar.enumeration.CourseCategory;
 import com.binar.pedulibelajar.enumeration.CourseLevel;
 import com.binar.pedulibelajar.enumeration.Type;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
+
+import java.util.Date;
 import java.util.List;
 
 @Data
@@ -17,6 +23,8 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @Entity
+@EntityListeners(AuditingEntityListener.class)
+@JsonIgnoreProperties(value = { "createdAt", "updatedAt" }, allowGetters = false)
 public class Course {
 
     @Id
@@ -43,6 +51,18 @@ public class Course {
     private String teacher;
 
     private double rating;
+
+    @CreatedDate
+    @Column(nullable = false, updatable = false)
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date createdAt;
+
+    @LastModifiedDate
+    @Column(nullable = false)
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date updatedAt;
+
+    private boolean delete;
 
     @ManyToOne
     @JoinColumn(name = "category_id")

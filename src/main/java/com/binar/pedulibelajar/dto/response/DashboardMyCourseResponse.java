@@ -1,6 +1,5 @@
 package com.binar.pedulibelajar.dto.response;
 
-import com.binar.pedulibelajar.enumeration.CourseCategory;
 import com.binar.pedulibelajar.enumeration.CourseLevel;
 import lombok.Data;
 
