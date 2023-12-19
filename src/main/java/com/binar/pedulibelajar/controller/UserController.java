@@ -2,6 +2,7 @@ package com.binar.pedulibelajar.controller;
 
 import com.binar.pedulibelajar.dto.request.EditProfileRequest;
 import com.binar.pedulibelajar.dto.request.ResetPasswordRequest;
+import com.binar.pedulibelajar.dto.request.UpdatePasswordRequest;
 import com.binar.pedulibelajar.dto.response.ResponseData;
 import com.binar.pedulibelajar.model.User;
 import com.binar.pedulibelajar.service.UserService;
@@ -38,8 +39,14 @@ public class UserController {
         return ResponseData.statusResponse(null, HttpStatus.OK, "success reset password");
     }
 
+    @GetMapping("/user")
+    @Operation(summary = "api to get user profile")
+    public ResponseEntity<Object> getUser() {
+        return ResponseData.statusResponse(userService.getUser(), HttpStatus.OK, "success get user profile");
+    }
+
     @PutMapping("/user")
-    @Operation(summary = "api to edit profile")
+    @Operation(summary = "api for user to edit profile")
     public ResponseEntity<User> editProfile(
             @ModelAttribute EditProfileRequest editProfileRequest) {
         if (editProfileRequest != null) {
@@ -55,13 +62,21 @@ public class UserController {
         return ResponseEntity.ok(updatedUser);
     }
 
+    @PutMapping("/user/updatePassword")
+    @Operation(summary = "api to user update password")
+    public ResponseEntity<Object> updatePassword(@RequestBody UpdatePasswordRequest updatePasswordRequest) {
+        userService.updatePassword(updatePasswordRequest);
+        return ResponseData.statusResponse(null, HttpStatus.OK, "success update password");
+    }
+
     @PostMapping("/user/progress")
+    @Operation(summary = "api for calculate learning progress user")
     public ResponseEntity<Object> progressUser(@RequestParam String courseCode, @RequestParam String subjectId) {
-        userService.progressUser(courseCode, subjectId);
-        return ResponseData.statusResponse(null, HttpStatus.OK, "success");
+        return ResponseData.statusResponse(userService.progressUser(courseCode, subjectId), HttpStatus.OK, "success");
     }
 
     @GetMapping("/admin/activeUser")
+    @Operation(summary = "api for admin to get active user")
     public ResponseEntity<Object> getActiveUser() {
         return ResponseData.statusResponse(userService.getActiveUser(), HttpStatus.OK, "success get active user");
     }

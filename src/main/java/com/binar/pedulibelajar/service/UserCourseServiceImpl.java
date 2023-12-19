@@ -29,7 +29,7 @@ public class UserCourseServiceImpl implements UserCourseService {
     private OrderRepository orderRepository;
 
     @Override
-    public boolean hasUserPurchasedCourse(String userEmail, String courseCode) {
+    public boolean hasUserPurchasedPremiumCourse(String userEmail, String courseCode) {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
@@ -37,9 +37,24 @@ public class UserCourseServiceImpl implements UserCourseService {
         if (course.isPresent()) {
             UserCourse userCourse = userCourseRepository.findByUserAndCourse(user, course.get()).stream()
                     .findFirst().orElse(null);
-            if(!orderRepository.isPaidByUserAndCourse(user, course.get())) {
+            if (!orderRepository.isPaidByUserAndCourse(user, course.get())) {
                 return false;
             }
+            return userCourse != null;
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Course not found");
+        }
+    }
+
+    @Override
+    public boolean hasUserPurchasedFreeCourse(String userEmail, String courseCode) {
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+        Optional<Course> course = courseRepository.findByCourseCode(courseCode);
+        if (course.isPresent()) {
+            UserCourse userCourse = userCourseRepository.findByUserAndCourse(user, course.get()).stream()
+                    .findFirst().orElse(null);
             return userCourse != null;
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Course not found");

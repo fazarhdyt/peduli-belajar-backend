@@ -8,8 +8,7 @@ import lombok.Data;
 public class PaymentHistoryResponse {
 
     private String courseCode;
-    private String thumbnail;
-    private CourseCategory category;
+    private CategoryResponse category;
     private String title;
     private String teacher;
     private int modul;

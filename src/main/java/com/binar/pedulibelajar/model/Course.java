@@ -30,9 +30,6 @@ public class Course {
     private String courseCode;
 
     @Enumerated(EnumType.STRING)
-    private CourseCategory category;
-
-    @Enumerated(EnumType.STRING)
     private Type type;
 
     @Enumerated(EnumType.STRING)
@@ -47,7 +44,9 @@ public class Course {
 
     private double rating;
 
-    private String thumbnail;
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
 
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Chapter> chapter;
@@ -57,5 +56,8 @@ public class Course {
 
     @OneToMany(mappedBy = "course")
     private List<UserCourse> userCourses;
+
+    @OneToMany(mappedBy = "course")
+    private List<UserProgress> userProgresses;
 
 }

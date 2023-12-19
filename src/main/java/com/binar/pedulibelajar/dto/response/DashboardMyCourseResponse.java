@@ -5,8 +5,7 @@ import com.binar.pedulibelajar.enumeration.CourseLevel;
 import lombok.Data;
 
 @Data
-public class DashboardCourseResponse {
-
+public class DashboardMyCourseResponse {
     private String courseCode;
     private String title;
     private CategoryResponse category;
@@ -14,5 +13,5 @@ public class DashboardCourseResponse {
     private CourseLevel level;
     private int modul;
     private double rating;
-    private double price;
+    private double percentProgress;
 }

@@ -19,6 +19,5 @@ public class CourseResponse {
     private double price;
     private String description;
     private String teacher;
-    private MultipartFile thumbnail;
     private List<ChapterResponse> chapter;
 }
