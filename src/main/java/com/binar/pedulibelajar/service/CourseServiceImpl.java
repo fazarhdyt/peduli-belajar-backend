@@ -154,9 +154,7 @@ public class CourseServiceImpl implements CourseService {
                         "category not found")));
         existingCourse.setDescription(updateCourse.getDescription());
         existingCourse.setPrice(updateCourse.getPrice());
-        existingCourse.setTeacher(updateCourse.getTeacher());
         courseRepository.save(existingCourse);
-        // existingCourse.getChapter().clear();
 
         List<Chapter> chapters = existingCourse.getChapter();
         for (int i = 0; i < chapters.size(); i++) {
