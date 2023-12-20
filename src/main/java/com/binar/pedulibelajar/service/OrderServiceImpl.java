@@ -163,7 +163,7 @@ public class OrderServiceImpl implements OrderService {
         response.setTitle(order.getCourse().getTitle());
         response.setPaymentMethod(order.getPaymentMethod());
         response.setStatus(order.isPaid() ? "SUDAH BAYAR" : "BELUM BAYAR");
-        response.setPaymentDate(fmt.format(order.getPaymentDate()));
+        response.setPaymentDate(order.getPaymentDate() == null ? "-" : fmt.format(order.getPaymentDate()));
         return response;
     }
 

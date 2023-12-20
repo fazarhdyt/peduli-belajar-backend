@@ -28,6 +28,14 @@ public class AuthController {
         return ResponseData.statusResponse(null, HttpStatus.CREATED, "User registered successfully!");
     }
 
+    @PostMapping("/signup/admin")
+    @Operation(summary = "api for admin to register")
+    public ResponseEntity<Object> registerAdmin(@RequestBody SignupRequest signupRequest) {
+
+        return ResponseData.statusResponse(authService.registerAdmin(signupRequest), HttpStatus.CREATED,
+                "User registered successfully!");
+    }
+
     @PostMapping("/signin")
     @Operation(summary = "api for user/admin to login")
     public ResponseEntity<Object> authenticateUser(@RequestBody LoginRequest loginRequest,

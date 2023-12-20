@@ -4,7 +4,7 @@ import com.binar.pedulibelajar.dto.request.EditProfileRequest;
 import com.binar.pedulibelajar.dto.request.ResetPasswordRequest;
 import com.binar.pedulibelajar.dto.request.UpdatePasswordRequest;
 import com.binar.pedulibelajar.dto.response.ResponseData;
-import com.binar.pedulibelajar.model.User;
+import com.binar.pedulibelajar.dto.response.UserResponse;
 import com.binar.pedulibelajar.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
@@ -45,14 +45,13 @@ public class UserController {
         return ResponseData.statusResponse(userService.getUser(), HttpStatus.OK, "success get user profile");
     }
 
-    @PutMapping("user/{email}")
+    @PutMapping("user/edit-profile")
     @Operation(summary = "api to edit profile")
-    public ResponseEntity<User> editProfile(
+    public ResponseEntity<UserResponse> editProfile(
             @ModelAttribute EditProfileRequest editProfileRequest) {
         if (editProfileRequest != null) {
             try {
-                User updatedUser = userService.editProfile(editProfileRequest);
-                return ResponseEntity.ok(updatedUser);
+                return ResponseEntity.ok(userService.editProfile(editProfileRequest));
             } catch (RuntimeException e) {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
             }

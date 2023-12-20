@@ -4,7 +4,6 @@ import com.binar.pedulibelajar.dto.request.EditProfileRequest;
 import com.binar.pedulibelajar.dto.request.ResetPasswordRequest;
 import com.binar.pedulibelajar.dto.request.UpdatePasswordRequest;
 import com.binar.pedulibelajar.dto.response.UserResponse;
-import com.binar.pedulibelajar.model.User;
 
 public interface UserService {
 
@@ -14,7 +13,7 @@ public interface UserService {
 
     UserResponse getUser();
 
-    User editProfile(EditProfileRequest editProfileRequest);
+    UserResponse editProfile(EditProfileRequest editProfileRequest);
 
     double progressUser(String courseCode, String subjectId);
 

@@ -101,7 +101,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User editProfile(EditProfileRequest editProfileRequest) {
+    public UserResponse editProfile(EditProfileRequest editProfileRequest) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
         User existingUser = userRepository.findByEmail(email)
@@ -121,8 +121,8 @@ public class UserServiceImpl implements UserService {
                 e.printStackTrace();
             }
         }
-
-        return userRepository.save(existingUser);
+        userRepository.save(existingUser);
+        return modelMapper.map(existingUser, UserResponse.class);
     }
 
     @Override
