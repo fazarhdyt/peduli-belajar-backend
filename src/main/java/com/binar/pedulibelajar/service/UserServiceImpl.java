@@ -107,10 +107,9 @@ public class UserServiceImpl implements UserService {
         User existingUser = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        modelMapper.map(editProfileRequest, existingUser);
+        User userUpdate = modelMapper.map(editProfileRequest, User.class);
 
-        if (editProfileRequest != null && editProfileRequest.getProfilePicture() != null &&
-                !editProfileRequest.getProfilePicture().isEmpty()) {
+        if (editProfileRequest.getProfilePicture() != null && !editProfileRequest.getProfilePicture().isEmpty()) {
             try {
                 Map<?, ?> uploadResult = cloudinary.uploader().upload(
                         editProfileRequest.getProfilePicture().getBytes(),
@@ -121,6 +120,10 @@ public class UserServiceImpl implements UserService {
                 e.printStackTrace();
             }
         }
+        existingUser.setFullName(userUpdate.getFullName().isEmpty() ? existingUser.getFullName() : userUpdate.getFullName());
+        existingUser.setNoTelp(userUpdate.getNoTelp().isEmpty() ? existingUser.getNoTelp() : userUpdate.getNoTelp());
+        existingUser.setCity(userUpdate.getCity().isEmpty() ? existingUser.getCity() : userUpdate.getCity());
+        existingUser.setCountry(userUpdate.getCountry().isEmpty() ? existingUser.getCountry() : userUpdate.getCountry());
         userRepository.save(existingUser);
         return modelMapper.map(existingUser, UserResponse.class);
     }
