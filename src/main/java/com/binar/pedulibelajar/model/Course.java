@@ -43,10 +43,12 @@ public class Course {
     @Enumerated(EnumType.STRING)
     private CourseLevel level;
 
-    private double price;
+    private Double price;
 
     @Column(columnDefinition = "text")
     private String description;
+
+    private String telegramLink;
 
     private String teacher;
 

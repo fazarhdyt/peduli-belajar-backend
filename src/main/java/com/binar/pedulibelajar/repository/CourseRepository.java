@@ -20,7 +20,8 @@ public interface CourseRepository extends JpaRepository<Course, String> {
         Optional<Course> findByCourseCode(String courseCode);
 
         @Query("SELECT c FROM Course c WHERE " +
-                        "(c.category IN (:category) OR :category IS NULL) AND " +
+                        "c.delete = false AND" +
+                        "(c.category.categoryName IN (:category) OR :category IS NULL) AND " +
                         "(c.level IN (:level) OR :level IS NULL) AND " +
                         "(c.type IN (:type) OR :type IS NULL) AND " +
                         "(:title IS NULL OR (LOWER(c.title) LIKE LOWER(CONCAT('%', :title, '%'))))")
@@ -35,20 +36,23 @@ public interface CourseRepository extends JpaRepository<Course, String> {
                         "JOIN UserProgress up ON c.id = up.course.id " +
                         "JOIN Order o ON c.id = o.course.id " +
                         "WHERE up.user.email = :email " +
-                        "AND (c.category IN (:category) OR :category IS NULL) " +
+                        "AND (c.category.categoryName IN (:category) OR :category IS NULL) " +
                         "AND (c.level IN (:level) OR :level IS NULL) " +
                         "AND (c.type IN (:type) OR :type IS NULL) " +
-                        "AND (:progress IS NULL OR (up.percent = 100 AND :progress = 'done') OR (up.percent < 100 AND :progress = 'in progress'))"
+                        "AND (:completed IS NULL OR (up.percent = 100 AND :completed = true) OR (up.percent < 100 AND :completed = false))"
                         +
                         "AND (:title IS NULL OR (LOWER(c.title) LIKE LOWER(CONCAT('%', :title, '%'))))")
         Optional<Page<Course>> findMyCourseByFilters(
                         @Param("category") List<CourseCategory> categories,
                         @Param("level") List<CourseLevel> levels,
                         @Param("type") List<Type> types,
-                        @Param("progress") String progress,
+                        @Param("completed") Boolean completed,
                         @Param("title") String title,
                         @Param("email") String email,
                         Pageable pageable);
+
+        @Query("SELECT c FROM Course c WHERE c.teacher = :teacher AND c.delete = false")
+        List<Course> findManageCourses(@Param("teacher") String teacher);
 
         @Query("SELECT COUNT(c) FROM Course c WHERE c.teacher = :teacher")
         long countTotalCourses(@Param("teacher") String teacher);

@@ -18,15 +18,17 @@ public interface CourseService {
 
     PaginationCourseResponse<DashboardMyCourseResponse> getMyCourse(Integer page, Integer size,
             List<CourseCategory> categories,
-            List<CourseLevel> levels, List<Type> types, String progresses, String title);
+            List<CourseLevel> levels, List<Type> types, Boolean completed, String title);
 
-    CreateCourseResponse createCourse(CourseRequest courseRequest);
+    CourseResponse createCourse(CourseRequest courseRequest);
 
-    CreateCourseResponse updateCourse(String courseCode, CourseRequest courseRequest);
+    CourseResponse updateCourse(String courseCode, CourseRequest courseRequest);
 
     void deleteCourse(String courseCode);
 
     long getTotalCourse();
 
     long getPremiumCourse();
+
+    List<CourseResponse> getManageCourses();
 }
