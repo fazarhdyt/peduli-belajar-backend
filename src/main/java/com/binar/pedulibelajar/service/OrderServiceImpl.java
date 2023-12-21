@@ -161,7 +161,7 @@ public class OrderServiceImpl implements OrderService {
         response.setUsername(order.getUser().getFullName());
         response.setCategory(order.getCourse().getCategory().getCategoryName());
         response.setTitle(order.getCourse().getTitle());
-        response.setPaymentMethod(order.getPaymentMethod());
+        response.setPaymentMethod(order.isPaid() ? order.getPaymentMethod().toString() : "-");
         response.setStatus(order.isPaid() ? "SUDAH BAYAR" : "BELUM BAYAR");
         response.setPaymentDate(order.getPaymentDate() == null ? "-" : fmt.format(order.getPaymentDate()));
         return response;
