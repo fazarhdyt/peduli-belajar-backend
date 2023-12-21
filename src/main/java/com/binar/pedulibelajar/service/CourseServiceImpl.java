@@ -102,18 +102,18 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public PaginationCourseResponse<DashboardMyCourseResponse> getMyCourse(Integer page, Integer size,
             List<CourseCategory> categories,
-            List<CourseLevel> levels, List<Type> types, String progresses, String title) {
+            List<CourseLevel> levels, List<Type> types, Boolean completed, String title) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         page -= 1;
         Pageable pages = PageRequest.of(page, size);
         Page<Course> courses = courseRepository
-                .findMyCourseByFilters(categories, levels, types, progresses, title, email, pages)
+                .findMyCourseByFilters(categories, levels, types, completed, title, email, pages)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "course not found"));
         return mapToPaginationMyCourseResponse(courses);
     }
 
     @Override
-    public CreateCourseResponse createCourse(CourseRequest courseRequest) {
+    public CourseResponse createCourse(CourseRequest courseRequest) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         Course course = mapToEntityCourse(courseRequest);
         course.setTeacher(userRepository.findByEmail(email)
@@ -131,11 +131,11 @@ public class CourseServiceImpl implements CourseService {
                 subjectRepository.save(subject);
             }
         }
-        return modelMapper.map(courseRequest, CreateCourseResponse.class);
+        return modelMapper.map(course, CourseResponse.class);
     }
 
     @Override
-    public CreateCourseResponse updateCourse(String courseCode, CourseRequest courseRequest) {
+    public CourseResponse updateCourse(String courseCode, CourseRequest courseRequest) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         Course existingCourse = courseRepository.findByCourseCode(courseCode)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "course not found"));
@@ -145,15 +145,16 @@ public class CourseServiceImpl implements CourseService {
         existingCourse.setTeacher(userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "user not found"))
                 .getFullName());
-        existingCourse.setTitle(updateCourse.getTitle());
-        existingCourse.setCourseCode(updateCourse.getCourseCode());
-        existingCourse.setLevel(updateCourse.getLevel());
-        existingCourse.setType(updateCourse.getType());
+        existingCourse.setTitle(updateCourse.getTitle() != null ? updateCourse.getTitle() : existingCourse.getTitle());
+        existingCourse.setCourseCode(updateCourse.getCourseCode() != null ? updateCourse.getCourseCode() : existingCourse.getCourseCode());
+        existingCourse.setLevel(updateCourse.getLevel() != null ? updateCourse.getLevel() : existingCourse.getLevel());
+        existingCourse.setType(updateCourse.getType() != null ? updateCourse.getType() : existingCourse.getType());
         existingCourse.setCategory(categoryRepository.findByCategoryName(updateCourse.getCategory().getCategoryName())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
                         "category not found")));
-        existingCourse.setDescription(updateCourse.getDescription());
-        existingCourse.setPrice(updateCourse.getPrice());
+        existingCourse.setDescription(updateCourse.getDescription() != null ? updateCourse.getDescription() : existingCourse.getDescription());
+        existingCourse.setPrice(updateCourse.getPrice() != null ? updateCourse.getPrice() : existingCourse.getPrice());
+        existingCourse.setTelegramLink(updateCourse.getTelegramLink() != null ? updateCourse.getTelegramLink() : existingCourse.getTelegramLink());
         courseRepository.save(existingCourse);
 
         List<Chapter> chapters = existingCourse.getChapter();
@@ -177,12 +178,15 @@ public class CourseServiceImpl implements CourseService {
                 subjectRepository.save(subject);
             }
         }
-        return modelMapper.map(courseRequest, CreateCourseResponse.class);
+        return modelMapper.map(courseRequest, CourseResponse.class);
     }
 
     @Override
     public void deleteCourse(String courseCode) {
-        courseRepository.findByCourseCode(courseCode).ifPresent(course -> courseRepository.delete(course));
+        courseRepository.findByCourseCode(courseCode).ifPresent(course -> {
+            course.setDelete(true);
+            courseRepository.save(course);
+        });
     }
 
     @Override
@@ -201,6 +205,17 @@ public class CourseServiceImpl implements CourseService {
         return courseRepository.countPremiumCourses(user.getFullName());
     }
 
+    @Override
+    public List<CourseResponse> getManageCourses() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "user not found"));
+
+        return courseRepository.findManageCourses(user.getFullName()).stream()
+                .map(course -> modelMapper.map(course, CourseResponse.class))
+                .collect(Collectors.toList());
+    }
+
     private DetailCourseResponse mapToDetailCourseResponse(Course course) {
         DetailCourseResponse response = new DetailCourseResponse();
         response.setId(course.getId());
@@ -214,6 +229,7 @@ public class CourseServiceImpl implements CourseService {
         response.setTeacher(course.getTeacher());
         response.setModul(course.getChapter().size());
         response.setRating(course.getRating());
+        response.setTelegramLink((course.getTelegramLink()));
         List<ChapterResponse> chapterResponses = course.getChapter().stream()
                 .map(this::mapToChapterResponse)
                 .collect(Collectors.toList());
@@ -235,6 +251,7 @@ public class CourseServiceImpl implements CourseService {
         response.setTeacher(course.getTeacher());
         response.setModul(course.getChapter().size());
         response.setRating(course.getRating());
+        response.setTelegramLink("-");
         List<ChapterResponse> chapterResponses = course.getChapter().stream()
                 .map(this::mapToChapterSubjectFreeResponse)
                 .collect(Collectors.toList());
@@ -395,6 +412,7 @@ public class CourseServiceImpl implements CourseService {
 
     private CategoryResponse mapToCategoryResponse(Category category) {
         return CategoryResponse.builder()
+                .id(category.getId())
                 .categoryName(category.getCategoryName())
                 .categoryImage(category.getCategoryImage())
                 .build();

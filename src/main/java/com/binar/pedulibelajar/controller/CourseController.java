@@ -56,13 +56,13 @@ public class CourseController {
             @RequestParam(required = false, defaultValue = "1") Integer page,
             @RequestParam(required = false, defaultValue = "6") Integer size,
             @RequestParam(required = false) String title,
-            @RequestParam(required = false) String progresses,
+            @RequestParam(required = false) Boolean completed,
             @RequestParam(required = false) List<CourseCategory> categories,
             @RequestParam(required = false) List<CourseLevel> levels,
             @RequestParam(required = false) List<Type> types) {
 
         return ResponseData.statusResponse(
-                courseService.getMyCourse(page, size, categories, levels, types, progresses, title), HttpStatus.OK,
+                courseService.getMyCourse(page, size, categories, levels, types, completed, title), HttpStatus.OK,
                 "success get my courses");
     }
 
@@ -98,5 +98,11 @@ public class CourseController {
     public ResponseEntity<Object> deleteCourse(@PathVariable String courseCode) {
         courseService.deleteCourse(courseCode);
         return ResponseData.statusResponse(null, HttpStatus.OK, "success delete course");
+    }
+
+    @GetMapping("/admin/manage-course")
+    @Operation(summary = "api for admin to get courses that is managed")
+    public ResponseEntity<Object> getManageCourses() {
+        return ResponseData.statusResponse(courseService.getManageCourses(), HttpStatus.OK, "success get courses");
     }
 }

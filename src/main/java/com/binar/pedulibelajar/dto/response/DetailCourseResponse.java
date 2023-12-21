@@ -15,10 +15,11 @@ public class DetailCourseResponse {
     private CategoryResponse category;
     private Type type;
     private CourseLevel level;
-    private double price;
+    private Double price;
     private String description;
     private String teacher;
     private int modul;
     private double rating;
+    private String telegramLink;
     private List<ChapterResponse> chapter;
 }
