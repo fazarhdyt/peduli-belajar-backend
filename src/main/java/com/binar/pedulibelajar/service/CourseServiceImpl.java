@@ -281,6 +281,7 @@ public class CourseServiceImpl implements CourseService {
 
     private SubjectResponse mapToSubjectFreeResponse(Subject subject) {
         SubjectResponse subjectResponse = new SubjectResponse();
+        subjectResponse.setId(subject.getId());
         subjectResponse.setSubjectNo(subject.getSubjectNo());
         subjectResponse.setVideoTitle(subject.getVideoTitle());
         subjectResponse.setVideoLink(subject.getSubjectType().equals(Type.PREMIUM) ? "" : subject.getVideoLink());
