@@ -11,7 +11,9 @@ import com.binar.pedulibelajar.repository.UserRepository;
 import com.binar.pedulibelajar.security.jwt.JwtUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -68,12 +70,13 @@ public class AuthServiceImpl implements AuthService{
         User userDetails = (User) authentication.getPrincipal();
         String jwt = jwtUtils.generateJwtToken(authentication);
 
-        Cookie jwtCookie = new Cookie("JWT_TOKEN", jwt);
-        jwtCookie.setHttpOnly(true);
-        jwtCookie.setMaxAge(3600);
-        jwtCookie.setPath("/");
-        jwtCookie.setSecure(true);
-        response.addCookie(jwtCookie);
+        ResponseCookie jwtCookie = ResponseCookie.from("JWT_TOKEN", jwt)
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .sameSite("None")
+                .build();
+        response.addHeader(HttpHeaders.SET_COOKIE, jwtCookie.toString());
 
         return new JwtResponse(jwt,
                 userDetails.getEmail(),
