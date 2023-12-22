@@ -6,6 +6,7 @@ import com.binar.pedulibelajar.dto.request.SubjectRequest;
 import com.binar.pedulibelajar.dto.response.*;
 import com.binar.pedulibelajar.enumeration.CourseCategory;
 import com.binar.pedulibelajar.enumeration.CourseLevel;
+import com.binar.pedulibelajar.enumeration.ERole;
 import com.binar.pedulibelajar.enumeration.Type;
 import com.binar.pedulibelajar.model.Category;
 import com.binar.pedulibelajar.model.Chapter;
@@ -71,6 +72,10 @@ public class CourseServiceImpl implements CourseService {
 
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         Optional<Course> course = courseRepository.findByCourseCode(courseCode);
+
+        if(userRepository.findByEmail(email).get().getRole() == ERole.ADMIN) {
+            return course.map(this::mapToDetailCourseResponse).get();
+        }
 
         if (course.get().getType().equals(Type.GRATIS)) {
             if (userCourseService.hasUserPurchasedFreeCourse(email, courseCode)) {
