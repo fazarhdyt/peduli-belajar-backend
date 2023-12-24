@@ -4,11 +4,8 @@ import com.binar.pedulibelajar.enumeration.CourseLevel;
 import com.binar.pedulibelajar.enumeration.Type;
 import lombok.Data;
 
-import java.util.List;
-
-
 @Data
-public class CourseRequest {
+public class EditCourseRequest {
 
     private String title;
     private String courseCode;
@@ -18,5 +15,4 @@ public class CourseRequest {
     private double price;
     private String description;
     private String telegramLink;
-    private List<ChapterRequest> chapter;
 }

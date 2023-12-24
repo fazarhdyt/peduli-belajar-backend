@@ -1,6 +1,7 @@
 package com.binar.pedulibelajar.controller;
 
 import com.binar.pedulibelajar.dto.request.CourseRequest;
+import com.binar.pedulibelajar.dto.request.EditCourseRequest;
 import com.binar.pedulibelajar.dto.response.ResponseData;
 import com.binar.pedulibelajar.enumeration.CourseCategory;
 import com.binar.pedulibelajar.enumeration.CourseLevel;
@@ -88,8 +89,8 @@ public class CourseController {
     @PutMapping("/admin/course/{courseCode}")
     @Operation(summary = "api for admin to update course")
     public ResponseEntity<Object> updateCourse(@PathVariable String courseCode,
-            @RequestBody CourseRequest courseRequest) {
-        return ResponseData.statusResponse(courseService.updateCourse(courseCode, courseRequest), HttpStatus.OK,
+            @RequestBody EditCourseRequest editCourseRequest) {
+        return ResponseData.statusResponse(courseService.updateCourse(courseCode, editCourseRequest), HttpStatus.OK,
                 "success update course");
     }
 

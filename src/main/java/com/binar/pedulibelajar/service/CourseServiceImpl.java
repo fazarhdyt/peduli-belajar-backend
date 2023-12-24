@@ -1,6 +1,9 @@
 package com.binar.pedulibelajar.service;
 
+import com.binar.pedulibelajar.dto.request.ChapterRequest;
 import com.binar.pedulibelajar.dto.request.CourseRequest;
+import com.binar.pedulibelajar.dto.request.EditCourseRequest;
+import com.binar.pedulibelajar.dto.request.SubjectRequest;
 import com.binar.pedulibelajar.dto.response.*;
 import com.binar.pedulibelajar.enumeration.CourseCategory;
 import com.binar.pedulibelajar.enumeration.CourseLevel;
@@ -136,12 +139,12 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public CourseResponse updateCourse(String courseCode, CourseRequest courseRequest) {
+    public CourseResponse updateCourse(String courseCode, EditCourseRequest editCourseRequest) {
         email = SecurityContextHolder.getContext().getAuthentication().getName();
         Course existingCourse = courseRepository.findByCourseCode(courseCode)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "course not found"));
 
-        Course updateCourse = mapToEntityCourse(courseRequest);
+        Course updateCourse = mapToEntityEditCourse(editCourseRequest);
 
         existingCourse.setTeacher(userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "user not found"))
@@ -158,7 +161,7 @@ public class CourseServiceImpl implements CourseService {
         existingCourse.setTelegramLink(updateCourse.getTelegramLink() != null ? updateCourse.getTelegramLink() : existingCourse.getTelegramLink());
         courseRepository.save(existingCourse);
 
-        return modelMapper.map(courseRequest, CourseResponse.class);
+        return modelMapper.map(editCourseRequest, CourseResponse.class);
     }
 
     @Override
@@ -319,6 +322,22 @@ public class CourseServiceImpl implements CourseService {
         return subjectResponse;
     }
 
+    private Course mapToEntityEditCourse(EditCourseRequest editCourseRequest) {
+        Course course = new Course();
+        course.setTitle(editCourseRequest.getTitle());
+        course.setCourseCode(editCourseRequest.getCourseCode());
+        course.setCategory(categoryRepository.findByCategoryName(editCourseRequest.getCategory().getCategoryName())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "category not found")));
+        course.setType(editCourseRequest.getType());
+        course.setLevel(editCourseRequest.getLevel());
+        course.setPrice(editCourseRequest.getPrice());
+        course.setDescription(editCourseRequest.getDescription());
+        course.setTelegramLink((editCourseRequest.getTelegramLink()));
+        course.setRating(0);
+
+        return course;
+    }
+
     private Course mapToEntityCourse(CourseRequest courseRequest) {
         Course course = new Course();
         course.setTitle(courseRequest.getTitle());
@@ -329,9 +348,38 @@ public class CourseServiceImpl implements CourseService {
         course.setLevel(courseRequest.getLevel());
         course.setPrice(courseRequest.getPrice());
         course.setDescription(courseRequest.getDescription());
+        course.setTelegramLink((courseRequest.getTelegramLink()));
         course.setRating(0);
+        List<Chapter> chapter = courseRequest.getChapter().stream()
+                .map(this::mapToEntityChapter)
+                .collect(Collectors.toList());
+
+        course.setChapter(chapter);
         return course;
     }
+    private Chapter mapToEntityChapter(ChapterRequest chapterRequest) {
+        Chapter chapter = new Chapter();
+        chapter.setChapterNo(chapterRequest.getChapterNo());
+        chapter.setChapterTitle(chapterRequest.getChapterTitle());
+
+        List<Subject> subject = chapterRequest.getSubject().stream()
+                .map(this::mapToEntitySubject)
+                .collect(Collectors.toList());
+
+        chapter.setSubject(subject);
+
+        return chapter;
+    }
+
+    private Subject mapToEntitySubject(SubjectRequest subjectRequest) {
+        Subject subject = new Subject();
+        subject.setSubjectNo(subjectRequest.getSubjectNo());
+        subject.setVideoTitle(subjectRequest.getVideoTitle());
+        subject.setVideoLink(subjectRequest.getVideoLink());
+        subject.setSubjectType(subjectRequest.getSubjectType());
+        return subject;
+    }
+
 
     private PaginationCourseResponse<DashboardCourseResponse> mapToPaginationCourseResponse(Page<Course> coursePage) {
         List<Course> courseResponses = coursePage.getContent();
