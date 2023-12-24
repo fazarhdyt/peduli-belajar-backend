@@ -53,10 +53,10 @@ public interface CourseRepository extends JpaRepository<Course, String> {
         @Query("SELECT c FROM Course c WHERE c.teacher = :teacher AND c.delete = false")
         List<Course> findManageCourses(@Param("teacher") String teacher);
 
-        @Query("SELECT COUNT(c) FROM Course c WHERE c.teacher = :teacher")
+        @Query("SELECT COUNT(c) FROM Course c WHERE c.teacher = :teacher AND c.delete = false")
         long countTotalCourses(@Param("teacher") String teacher);
 
-        @Query("SELECT COUNT(c) FROM Course c WHERE c.teacher = :teacher AND c.type = 'PREMIUM'")
+        @Query("SELECT COUNT(c) FROM Course c WHERE c.teacher = :teacher AND c.type = 'PREMIUM' AND c.delete = false")
         long countPremiumCourses(@Param("teacher") String teacher);
 
 }
