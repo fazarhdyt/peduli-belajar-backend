@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -48,7 +49,10 @@ public class UserController {
     @PutMapping("user/edit-profile")
     @Operation(summary = "api to edit profile")
     public ResponseEntity<UserResponse> editProfile(
-            @ModelAttribute EditProfileRequest editProfileRequest) {
+            @ModelAttribute EditProfileRequest editProfileRequest, BindingResult result) {
+        if(result.hasErrors()) {
+            return ResponseEntity.internalServerError().build();
+        }
         if (editProfileRequest != null) {
             try {
                 return ResponseEntity.ok(userService.editProfile(editProfileRequest));
