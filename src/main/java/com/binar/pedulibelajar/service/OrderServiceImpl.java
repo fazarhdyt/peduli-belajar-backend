@@ -16,7 +16,9 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,8 +39,11 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private UserProgressRepository userProgressRepository;
 
+    @Autowired
+    private EmailSenderService emailSenderService;
+
     @Override
-    public void orderPremium(OrderRequest orderRequest) {
+    public Map<String, String> orderPremium(OrderRequest orderRequest) {
 
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
@@ -63,7 +68,9 @@ public class OrderServiceImpl implements OrderService {
         orderRepository.save(order);
         storeToUserCourse(order);
         userProgressRepository.save(new UserProgress(user, course));
-
+        Map<String, String> response = new HashMap<>();
+        response.put("orderId", order.getId());
+        return response;
     }
 
     @Override
@@ -106,6 +113,7 @@ public class OrderServiceImpl implements OrderService {
         order.setPaid(true);
         order.setPaymentDate(new Date());
         orderRepository.save(order);
+        emailSenderService.sendMailOrderSuccess(order.getUser().getEmail(), order);
     }
 
     @Override

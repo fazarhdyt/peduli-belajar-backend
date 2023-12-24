@@ -6,10 +6,11 @@ import com.binar.pedulibelajar.dto.response.PaymentHistoryResponse;
 import com.binar.pedulibelajar.dto.response.StatusOrderResponse;
 
 import java.util.List;
+import java.util.Map;
 
 public interface OrderService {
 
-    void orderPremium(OrderRequest orderRequest);
+    Map<String, String> orderPremium(OrderRequest orderRequest);
 
     void orderFree(String courseCode);
 
