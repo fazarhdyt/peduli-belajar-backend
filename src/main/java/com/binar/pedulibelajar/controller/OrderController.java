@@ -22,8 +22,7 @@ public class OrderController {
     @PostMapping("/order")
     @Operation(summary = "api for user to order course")
     public ResponseEntity<Object> orderCourse(@Valid @RequestBody OrderRequest orderRequest) {
-        orderService.orderPremium(orderRequest);
-        return ResponseData.statusResponse(null, HttpStatus.OK, "success order course");
+        return ResponseData.statusResponse(orderService.orderPremium(orderRequest), HttpStatus.OK, "success order course");
     }
 
     @PutMapping("/order/resolve")
@@ -35,7 +34,7 @@ public class OrderController {
 
     @GetMapping("/order/{courseCode}")
     @Operation(summary = "api for user to get detail order")
-    public ResponseEntity<Object> getPaymentHistory(@PathVariable String courseCode) {
+    public ResponseEntity<Object> getOrderDetail(@PathVariable String courseCode) {
         return ResponseData.statusResponse(orderService.getOrderDetailCourse(courseCode), HttpStatus.OK, "success get payment history");
     }
 

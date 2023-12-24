@@ -105,4 +105,11 @@ public class CourseController {
     public ResponseEntity<Object> getManageCourses() {
         return ResponseData.statusResponse(courseService.getManageCourses(), HttpStatus.OK, "success get courses");
     }
+
+    @GetMapping("/course/progress/{courseCode}")
+    @Operation(summary = "api to get user progress")
+    public ResponseEntity<Object> getUserProgress(@PathVariable String courseCode) {
+        return ResponseData.statusResponse(courseService.getProgress(courseCode), HttpStatus.OK,
+                "success get user progress");
+    }
 }

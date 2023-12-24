@@ -34,7 +34,6 @@ public interface CourseRepository extends JpaRepository<Course, String> {
 
         @Query("SELECT c FROM Course c " +
                         "JOIN UserProgress up ON c.id = up.course.id " +
-//                        "JOIN Order o ON c.id = o.course.id " +
                         "WHERE up.user.email = :email " +
                         "AND (c.category.categoryName IN (:category) OR :category IS NULL) " +
                         "AND (c.level IN (:level) OR :level IS NULL) " +
