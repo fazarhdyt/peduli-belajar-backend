@@ -5,6 +5,8 @@ import lombok.Data;
 
 @Data
 public class DashboardMyCourseResponse {
+
+    private String id;
     private String courseCode;
     private String title;
     private CategoryResponse category;

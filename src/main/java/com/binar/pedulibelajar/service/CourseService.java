@@ -31,4 +31,6 @@ public interface CourseService {
     long getPremiumCourse();
 
     List<CourseResponse> getManageCourses();
+
+    double getProgress(String courseCode);
 }
