@@ -1,6 +1,7 @@
 package com.binar.pedulibelajar.service;
 
 import com.binar.pedulibelajar.dto.request.CourseRequest;
+import com.binar.pedulibelajar.dto.request.EditCourseRequest;
 import com.binar.pedulibelajar.dto.response.*;
 import com.binar.pedulibelajar.enumeration.CourseCategory;
 import com.binar.pedulibelajar.enumeration.CourseLevel;
@@ -22,7 +23,7 @@ public interface CourseService {
 
     CourseResponse createCourse(CourseRequest courseRequest);
 
-    CourseResponse updateCourse(String courseCode, CourseRequest courseRequest);
+    CourseResponse updateCourse(String courseCode, EditCourseRequest editCourseRequest);
 
     void deleteCourse(String courseCode);
 
