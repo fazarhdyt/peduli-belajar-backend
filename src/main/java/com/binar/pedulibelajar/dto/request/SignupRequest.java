@@ -15,7 +15,7 @@ public class SignupRequest {
 
     @NotBlank
     @Size(max = 50)
-    @Email
+    @Email(message = "email not valid")
     private String email;
 
     @NotBlank
