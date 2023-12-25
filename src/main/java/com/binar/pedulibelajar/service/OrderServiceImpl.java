@@ -70,6 +70,8 @@ public class OrderServiceImpl implements OrderService {
         userProgressRepository.save(new UserProgress(user, course));
         Map<String, String> response = new HashMap<>();
         response.put("orderId", order.getId());
+        response.put("user", order.getUser().getFullName());
+        response.put("course title", order.getCourse().getTitle());
         return response;
     }
 

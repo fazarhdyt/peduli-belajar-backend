@@ -21,7 +21,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -55,6 +57,9 @@ public class CourseServiceImpl implements CourseService {
     @Autowired
     private UserProgressRepository userProgressRepository;
 
+    @Autowired
+    private UserCourseRepository userCourseRepository;
+
     @Override
     public List<DashboardCourseResponse> getAllCourses() {
         List<Course> courses = courseRepository.findAll();
@@ -63,32 +68,31 @@ public class CourseServiceImpl implements CourseService {
                 .collect(Collectors.toList());
     }
 
-    private String email;
-    private User user;
-
     @Override
     public DetailCourseResponse getCourseByCourseCode(String courseCode) {
 
-        email = SecurityContextHolder.getContext().getAuthentication().getName();
-        Optional<Course> course = courseRepository.findByCourseCode(courseCode);
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        Optional<Course> courseOptional = courseRepository.findByCourseCode(courseCode);
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "user not found"));
 
-        if(userRepository.findByEmail(email).get().getRole() == ERole.ADMIN) {
-            return course.map(this::mapToDetailCourseResponse).get();
+        if(user.getRole() == ERole.ADMIN) {
+            return courseOptional.map(course -> mapToDetailCourseResponse(course, null)).get();
         }
 
-        if (course.get().getType().equals(Type.GRATIS)) {
+        if (courseOptional.get().getType().equals(Type.GRATIS)) {
             if (userCourseService.hasUserPurchasedFreeCourse(email, courseCode)) {
-                return course.map(this::mapToDetailCourseResponse).get();
+                return courseOptional.map(course -> mapToDetailCourseResponse(course, user)).get();
             }
             orderService.orderFree(courseCode);
         }
 
         if (userCourseService.hasUserPurchasedPremiumCourse(email, courseCode)) {
-            return course.map(this::mapToDetailCourseResponse).orElseThrow(
+            return courseOptional.map(course -> mapToDetailCourseResponse(course, user)).orElseThrow(
                     () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Course not found"));
         } else {
-            return course.map(this::mapToDetailCourseSubjectFreeResponse).orElseThrow(
-                    () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Course not found2"));
+            return courseOptional.map(course -> mapToDetailCourseSubjectFreeResponse(course, user)).orElseThrow(
+                    () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Course not found"));
         }
     }
 
@@ -107,7 +111,7 @@ public class CourseServiceImpl implements CourseService {
     public PaginationCourseResponse<DashboardMyCourseResponse> getMyCourse(Integer page, Integer size,
             List<CourseCategory> categories,
             List<CourseLevel> levels, List<Type> types, Boolean completed, String title) {
-        email = SecurityContextHolder.getContext().getAuthentication().getName();
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
         page -= 1;
         Pageable pages = PageRequest.of(page, size);
         Page<Course> courses = courseRepository
@@ -118,7 +122,7 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public CourseResponse createCourse(CourseRequest courseRequest) {
-        email = SecurityContextHolder.getContext().getAuthentication().getName();
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
         Course course = mapToEntityCourse(courseRequest);
         course.setTeacher(userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "user not found"))
@@ -140,7 +144,7 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public CourseResponse updateCourse(String courseCode, EditCourseRequest editCourseRequest) {
-        email = SecurityContextHolder.getContext().getAuthentication().getName();
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
         Course existingCourse = courseRepository.findByCourseCode(courseCode)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "course not found"));
 
@@ -174,24 +178,24 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public long getTotalCourse() {
-        email = SecurityContextHolder.getContext().getAuthentication().getName();
-        user = userRepository.findByEmail(email)
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "user not found"));
         return courseRepository.countTotalCourses(user.getFullName());
     }
 
     @Override
     public long getPremiumCourse() {
-        email = SecurityContextHolder.getContext().getAuthentication().getName();
-        user = userRepository.findByEmail(email)
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "user not found"));
         return courseRepository.countPremiumCourses(user.getFullName());
     }
 
     @Override
     public List<CourseResponse> getManageCourses() {
-        email = SecurityContextHolder.getContext().getAuthentication().getName();
-        user = userRepository.findByEmail(email)
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "user not found"));
 
         return courseRepository.findManageCourses(user.getFullName()).stream()
@@ -200,70 +204,36 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public double getProgress(String courseCode) {
-        email = SecurityContextHolder.getContext().getAuthentication().getName();
-        user = userRepository.findByEmail(email)
+    public Map<String, Double> getProgress(String courseCode) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "user not found"));
         Course course = courseRepository.findByCourseCode(courseCode)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "course not found"));
-
-        return userProgressRepository.findByUserAndCourse(user, course)
+        Map<String, Double> response = new HashMap<>();
+        response.put("percent", userProgressRepository.findByUserAndCourse(user, course)
                 .map(UserProgress::getPercent)
-                .orElse(0.0);
+                .orElse(0.0));
+        return response;
     }
 
-    private DetailCourseResponse mapToDetailCourseResponse(Course course) {
-        DetailCourseResponse response = new DetailCourseResponse();
-        response.setId(course.getId());
-        response.setTitle(course.getTitle());
-        response.setCourseCode(course.getCourseCode());
+    private DetailCourseResponse mapToDetailCourseResponse(Course course, User user) {
+        DetailCourseResponse response = modelMapper.map(course, DetailCourseResponse.class);
         response.setCategory(mapToCategoryResponse(course.getCategory()));
-        response.setType(course.getType());
-        response.setLevel(course.getLevel());
-        response.setPrice(course.getPrice());
-        response.setDescription(course.getDescription());
-        response.setTeacher(course.getTeacher());
         response.setModul(course.getChapter().size());
-        response.setRating(course.getRating());
-        response.setTelegramLink((course.getTelegramLink()));
         List<ChapterResponse> chapterResponses = course.getChapter().stream()
-                .map(this::mapToChapterResponse)
+                .map(chapter -> mapToChapterResponse(chapter, user, course))
                 .collect(Collectors.toList());
 
         response.setChapter(chapterResponses);
         return response;
     }
 
-    private DetailCourseResponse mapToDetailCourseSubjectFreeResponse(Course course) {
-        DetailCourseResponse response = new DetailCourseResponse();
-        response.setId(course.getId());
-        response.setTitle(course.getTitle());
-        response.setCourseCode(course.getCourseCode());
-        response.setCategory(mapToCategoryResponse(course.getCategory()));
-        response.setType(course.getType());
-        response.setLevel(course.getLevel());
-        response.setPrice(course.getPrice());
-        response.setDescription(course.getDescription());
-        response.setTeacher(course.getTeacher());
-        response.setModul(course.getChapter().size());
-        response.setRating(course.getRating());
-        response.setTelegramLink("-");
-        List<ChapterResponse> chapterResponses = course.getChapter().stream()
-                .map(this::mapToChapterSubjectFreeResponse)
-                .collect(Collectors.toList());
-
-        response.setChapter(chapterResponses);
-        return response;
-    }
-
-    private ChapterResponse mapToChapterSubjectFreeResponse(Chapter chapter) {
-        ChapterResponse chapterResponse = new ChapterResponse();
-        chapterResponse.setId(chapter.getId());
-        chapterResponse.setChapterNo(chapter.getChapterNo());
-        chapterResponse.setChapterTitle(chapter.getChapterTitle());
+    private ChapterResponse mapToChapterResponse(Chapter chapter, User user, Course course) {
+        ChapterResponse chapterResponse = modelMapper.map(chapter, ChapterResponse.class);
 
         List<SubjectResponse> subjectResponses = chapter.getSubject().stream()
-                .map(this::mapToSubjectFreeResponse)
+                .map(subject -> mapToSubjectResponse(subject, user, course))
                 .collect(Collectors.toList());
 
         chapterResponse.setSubject(subjectResponses);
@@ -271,55 +241,55 @@ public class CourseServiceImpl implements CourseService {
         return chapterResponse;
     }
 
-    private SubjectResponse mapToSubjectFreeResponse(Subject subject) {
-        SubjectResponse subjectResponse = new SubjectResponse();
-        subjectResponse.setId(subject.getId());
-        subjectResponse.setSubjectNo(subject.getSubjectNo());
-        subjectResponse.setVideoTitle(subject.getVideoTitle());
+    private SubjectResponse mapToSubjectResponse(Subject subject, User user, Course course) {
+        SubjectResponse subjectResponse = modelMapper.map(subject, SubjectResponse.class);
+        subjectResponse.setDone(isSubjectDone(subject, user, course));
+
+        return subjectResponse;
+    }
+
+    private boolean isSubjectDone(Subject subject, User user, Course course) {
+        return userCourseRepository.existsByUserAndCourseAndSubjectId(user, course, subject.getId());
+    }
+
+    private DetailCourseResponse mapToDetailCourseSubjectFreeResponse(Course course, User user) {
+        DetailCourseResponse response = modelMapper.map(course, DetailCourseResponse.class);
+        response.setCategory(mapToCategoryResponse(course.getCategory()));
+        response.setModul(course.getChapter().size());
+        response.setTelegramLink("-");
+        List<ChapterResponse> chapterResponses = course.getChapter().stream()
+                .map(chapter -> mapToChapterSubjectFreeResponse(chapter, user, course))
+                .collect(Collectors.toList());
+
+        response.setChapter(chapterResponses);
+        return response;
+    }
+
+    private ChapterResponse mapToChapterSubjectFreeResponse(Chapter chapter, User user, Course course) {
+        ChapterResponse chapterResponse = modelMapper.map(chapter, ChapterResponse.class);
+
+        List<SubjectResponse> subjectResponses = chapter.getSubject().stream()
+                .map(subject -> mapToSubjectFreeResponse(subject, user, course))
+                .collect(Collectors.toList());
+
+        chapterResponse.setSubject(subjectResponses);
+
+        return chapterResponse;
+    }
+
+    private SubjectResponse mapToSubjectFreeResponse(Subject subject, User user, Course course) {
+        SubjectResponse subjectResponse = modelMapper.map(subject, SubjectResponse.class);
         subjectResponse.setVideoLink(subject.getSubjectType().equals(Type.PREMIUM) ? "" : subject.getVideoLink());
-        subjectResponse.setSubjectType(subject.getSubjectType());
+        subjectResponse.setDone(isSubjectDone(subject, user, course));
 
         return subjectResponse;
     }
 
     private DashboardCourseResponse mapToDashboardCourseResponse(Course course) {
-        DashboardCourseResponse response = new DashboardCourseResponse();
-        response.setId(course.getId());
-        response.setCourseCode(course.getCourseCode());
-        response.setTitle(course.getTitle());
+        DashboardCourseResponse response = modelMapper.map(course, DashboardCourseResponse.class);
         response.setCategory(mapToCategoryResponse(course.getCategory()));
-        response.setLevel(course.getLevel());
-        response.setPrice(course.getPrice());
-        response.setTeacher(course.getTeacher());
         response.setModul(course.getChapter().size());
-        response.setRating(course.getRating());
         return response;
-    }
-
-    private ChapterResponse mapToChapterResponse(Chapter chapter) {
-        ChapterResponse chapterResponse = new ChapterResponse();
-        chapterResponse.setId(chapter.getId());
-        chapterResponse.setChapterNo(chapter.getChapterNo());
-        chapterResponse.setChapterTitle(chapter.getChapterTitle());
-
-        List<SubjectResponse> subjectResponses = chapter.getSubject().stream()
-                .map(this::mapToSubjectResponse)
-                .collect(Collectors.toList());
-
-        chapterResponse.setSubject(subjectResponses);
-
-        return chapterResponse;
-    }
-
-    private SubjectResponse mapToSubjectResponse(Subject subject) {
-        SubjectResponse subjectResponse = new SubjectResponse();
-        subjectResponse.setId(subject.getId());
-        subjectResponse.setSubjectNo(subject.getSubjectNo());
-        subjectResponse.setVideoTitle(subject.getVideoTitle());
-        subjectResponse.setVideoLink(subject.getVideoLink());
-        subjectResponse.setSubjectType(subject.getSubjectType());
-
-        return subjectResponse;
     }
 
     private Course mapToEntityEditCourse(EditCourseRequest editCourseRequest) {
@@ -339,16 +309,9 @@ public class CourseServiceImpl implements CourseService {
     }
 
     private Course mapToEntityCourse(CourseRequest courseRequest) {
-        Course course = new Course();
-        course.setTitle(courseRequest.getTitle());
-        course.setCourseCode(courseRequest.getCourseCode());
+        Course course = modelMapper.map(courseRequest, Course.class);
         course.setCategory(categoryRepository.findByCategoryName(courseRequest.getCategory().getCategoryName())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "category not found")));
-        course.setType(courseRequest.getType());
-        course.setLevel(courseRequest.getLevel());
-        course.setPrice(courseRequest.getPrice());
-        course.setDescription(courseRequest.getDescription());
-        course.setTelegramLink((courseRequest.getTelegramLink()));
         course.setRating(0);
         List<Chapter> chapter = courseRequest.getChapter().stream()
                 .map(this::mapToEntityChapter)
@@ -358,9 +321,7 @@ public class CourseServiceImpl implements CourseService {
         return course;
     }
     private Chapter mapToEntityChapter(ChapterRequest chapterRequest) {
-        Chapter chapter = new Chapter();
-        chapter.setChapterNo(chapterRequest.getChapterNo());
-        chapter.setChapterTitle(chapterRequest.getChapterTitle());
+        Chapter chapter = modelMapper.map(chapterRequest, Chapter.class);
 
         List<Subject> subject = chapterRequest.getSubject().stream()
                 .map(this::mapToEntitySubject)
@@ -372,12 +333,7 @@ public class CourseServiceImpl implements CourseService {
     }
 
     private Subject mapToEntitySubject(SubjectRequest subjectRequest) {
-        Subject subject = new Subject();
-        subject.setSubjectNo(subjectRequest.getSubjectNo());
-        subject.setVideoTitle(subjectRequest.getVideoTitle());
-        subject.setVideoLink(subjectRequest.getVideoLink());
-        subject.setSubjectType(subjectRequest.getSubjectType());
-        return subject;
+        return modelMapper.map(subjectRequest, Subject.class);
     }
 
 
@@ -413,16 +369,10 @@ public class CourseServiceImpl implements CourseService {
     }
 
     private DashboardMyCourseResponse mapToDashboardMyCourseResponse(Course course) {
-        DashboardMyCourseResponse response = new DashboardMyCourseResponse();
-        response.setId(course.getId());
-        response.setCourseCode(course.getCourseCode());
-        response.setTitle(course.getTitle());
+        DashboardMyCourseResponse response = modelMapper.map(course, DashboardMyCourseResponse.class);
         response.setCategory(mapToCategoryResponse(course.getCategory()));
-        response.setLevel(course.getLevel());
         response.setPercentProgress(course.getUserProgresses().get(0).getPercent());
-        response.setTeacher(course.getTeacher());
         response.setModul(course.getChapter().size());
-        response.setRating(course.getRating());
         return response;
     }
 

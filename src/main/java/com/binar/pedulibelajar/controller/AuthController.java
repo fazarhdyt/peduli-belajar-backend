@@ -7,6 +7,7 @@ import com.binar.pedulibelajar.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,14 +24,14 @@ public class AuthController {
 
     @PostMapping("/signup")
     @Operation(summary = "api for user to register")
-    public ResponseEntity<Object> registerUser(@RequestBody SignupRequest signupRequest) {
+    public ResponseEntity<Object> registerUser(@Valid @RequestBody SignupRequest signupRequest) {
         authService.registerUser(signupRequest);
         return ResponseData.statusResponse(null, HttpStatus.CREATED, "User registered successfully!");
     }
 
     @PostMapping("/signup/admin")
     @Operation(summary = "api for admin to register")
-    public ResponseEntity<Object> registerAdmin(@RequestBody SignupRequest signupRequest) {
+    public ResponseEntity<Object> registerAdmin(@Valid @RequestBody SignupRequest signupRequest) {
 
         return ResponseData.statusResponse(authService.registerAdmin(signupRequest), HttpStatus.CREATED,
                 "User registered successfully!");
@@ -38,7 +39,7 @@ public class AuthController {
 
     @PostMapping("/signin")
     @Operation(summary = "api for user/admin to login")
-    public ResponseEntity<Object> authenticateUser(@RequestBody LoginRequest loginRequest,
+    public ResponseEntity<Object> authenticateUser(@Valid @RequestBody LoginRequest loginRequest,
             HttpServletResponse response) {
 
         return ResponseData.statusResponse(authService.authenticateUser(loginRequest, response), HttpStatus.OK,
