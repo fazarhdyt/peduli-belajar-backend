@@ -8,6 +8,7 @@ import com.binar.pedulibelajar.enumeration.CourseLevel;
 import com.binar.pedulibelajar.enumeration.Type;
 
 import java.util.List;
+import java.util.Map;
 
 public interface CourseService {
     List<DashboardCourseResponse> getAllCourses();
@@ -33,5 +34,5 @@ public interface CourseService {
 
     List<CourseResponse> getManageCourses();
 
-    double getProgress(String courseCode);
+    Map<String, Double> getProgress(String courseCode);
 }

@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.transaction.Transactional;
+import java.util.HashMap;
 import java.util.List;
 import java.io.IOException;
 import java.util.Map;
@@ -150,7 +151,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public double progressUser(String courseCode, String subjectId) {
+    public Map<String, Double> progressUser(String courseCode, String subjectId) {
 
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
@@ -162,8 +163,9 @@ public class UserServiceImpl implements UserService {
                         () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "data not found"));
         userCourse.setDone(true);
         userCourseRepository.save(userCourse);
-
-        return calculatePercentage(user, courseCode);
+        Map<String, Double> response = new HashMap<>();
+        response.put("percent", calculatePercentage(user, courseCode));
+        return response;
     }
 
     @Override

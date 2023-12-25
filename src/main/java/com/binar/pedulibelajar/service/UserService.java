@@ -5,6 +5,8 @@ import com.binar.pedulibelajar.dto.request.ResetPasswordRequest;
 import com.binar.pedulibelajar.dto.request.UpdatePasswordRequest;
 import com.binar.pedulibelajar.dto.response.UserResponse;
 
+import java.util.Map;
+
 public interface UserService {
 
     void generateLinkResetPassword(String email);
@@ -15,7 +17,7 @@ public interface UserService {
 
     UserResponse editProfile(EditProfileRequest editProfileRequest);
 
-    double progressUser(String courseCode, String subjectId);
+    Map<String, Double> progressUser(String courseCode, String subjectId);
 
     long getActiveUser();
 
