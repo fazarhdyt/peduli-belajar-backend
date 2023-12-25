@@ -2,6 +2,8 @@ package com.binar.pedulibelajar.controller;
 
 import com.binar.pedulibelajar.dto.request.OrderRequest;
 import com.binar.pedulibelajar.dto.response.ResponseData;
+import com.binar.pedulibelajar.dto.response.StatusOrderResponse;
+import com.binar.pedulibelajar.enumeration.StatusOrders;
 import com.binar.pedulibelajar.service.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @CrossOrigin("*")
 @RestController
@@ -44,9 +47,9 @@ public class OrderController {
         return ResponseData.statusResponse(orderService.getPaymentHistory(), HttpStatus.OK, "success get payment history");
     }
 
-    @GetMapping("/admin/status-order")
-    @Operation(summary = "api for admin to get status order user")
-    public ResponseEntity<Object> getStatusOrder() {
-        return ResponseData.statusResponse(orderService.getStatusOrders(), HttpStatus.OK, "success get status order course");
+    @GetMapping("/status-orders")
+    @Operation(summary = "api for admin to get status order")
+    public List<StatusOrderResponse> getStatusOrders(@RequestParam(name = "statusOrders")StatusOrders statusOrders) {
+        return orderService.getStatusOrders(statusOrders);
     }
 }
