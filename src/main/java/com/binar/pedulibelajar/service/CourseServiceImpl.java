@@ -186,12 +186,13 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public List<CourseResponse> getManageCourses() {
+    public List<CourseResponse> getManageCourses(Type type) {
         email = SecurityContextHolder.getContext().getAuthentication().getName();
         user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "user not found"));
+        List<Course> filteredCourse = courseRepository.findManageCourses(user.getFullName(), type);
 
-        return courseRepository.findManageCourses(user.getFullName()).stream()
+        return filteredCourse.stream()
                 .map(course -> modelMapper.map(course, CourseResponse.class))
                 .collect(Collectors.toList());
     }

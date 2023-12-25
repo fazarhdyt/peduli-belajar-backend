@@ -30,7 +30,7 @@ public interface CourseService {
 
     long getPremiumCourse();
 
-    List<CourseResponse> getManageCourses();
+    List<CourseResponse> getManageCourses(Type type);
 
     double getProgress(String courseCode);
 }
