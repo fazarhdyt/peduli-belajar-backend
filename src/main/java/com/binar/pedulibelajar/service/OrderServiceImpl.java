@@ -5,8 +5,6 @@ import com.binar.pedulibelajar.dto.response.CategoryResponse;
 import com.binar.pedulibelajar.dto.response.OrderDetailCourseResponse;
 import com.binar.pedulibelajar.dto.response.PaymentHistoryResponse;
 import com.binar.pedulibelajar.dto.response.StatusOrderResponse;
-import com.binar.pedulibelajar.enumeration.StatusOrders;
-import com.binar.pedulibelajar.enumeration.Type;
 import com.binar.pedulibelajar.model.*;
 import com.binar.pedulibelajar.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -118,25 +116,20 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<StatusOrderResponse> getStatusOrders(StatusOrders statusOrders) {
+    public List<StatusOrderResponse> getStatusOrders(Boolean isPaid) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "user not found"));
 
-        List<Order> filteredOrders = orderRepository.findAll().stream()
-                .filter(order -> order.getCourse().getTeacher().equals(user.getFullName()))
-                .filter(order -> order.getCourse().getType().equals(Type.PREMIUM))
-                .filter(order -> {
-                    if (statusOrders == StatusOrders.SUDAH_BAYAR) {
-                        return order.isPaid();
-                    } else if (statusOrders == StatusOrders.BELUM_BAYAR) {
-                        return !order.isPaid();
-                    }
-                    return true;
-                })
-                .collect(Collectors.toList());
+        List<Order> orders;
 
-        return filteredOrders.stream()
+        if (isPaid != null) {
+            orders = orderRepository.findOrdersByTeacherAndIsPaid(user.getFullName(), isPaid);
+        } else {
+            orders = orderRepository.findOrdersByTeacherAndIsPaid(user.getFullName(), null);
+        }
+
+        return orders.stream()
                 .map(this::mapToStatusOrderResponse)
                 .collect(Collectors.toList());
     }
