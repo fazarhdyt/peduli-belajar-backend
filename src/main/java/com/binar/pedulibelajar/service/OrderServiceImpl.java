@@ -121,15 +121,8 @@ public class OrderServiceImpl implements OrderService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "user not found"));
 
-        List<Order> orders;
-
-        if (isPaid != null) {
-            orders = orderRepository.findOrdersByTeacherAndIsPaid(user.getFullName(), isPaid);
-        } else {
-            orders = orderRepository.findOrdersByTeacherAndIsPaid(user.getFullName(), null);
-        }
-
-        return orders.stream()
+        return orderRepository.findOrdersByTeacherAndIsPaid(user.getFullName(), isPaid)
+                .stream()
                 .map(this::mapToStatusOrderResponse)
                 .collect(Collectors.toList());
     }

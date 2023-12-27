@@ -31,8 +31,9 @@ public interface OrderRepository extends JpaRepository<Order, String> {
         @Query("SELECT COUNT(o) FROM Order o JOIN Course c ON o.course.id = c.id WHERE c.teacher = :teacher")
         long countActiveUsers(@Param("teacher") String teacher);
 
-        @Query("SELECT o FROM Order o WHERE o.course.teacher = :teacher " +
-                "AND o.course.type = 'PREMIUM' " +
+        @Query("SELECT o FROM Order o JOIN o.course c " +
+                "WHERE c.teacher = :teacher " +
+                "AND c.type = 'PREMIUM' " +
                 "AND (:isPaid is null OR o.paid = :isPaid)")
         List<Order> findOrdersByTeacherAndIsPaid(@Param("teacher") String teacher,
                                                  @Param("isPaid") Boolean isPaid);
