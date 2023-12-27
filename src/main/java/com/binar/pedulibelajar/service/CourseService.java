@@ -16,11 +16,10 @@ public interface CourseService {
     DetailCourseResponse getCourseByCourseCode(String courseCode);
 
     PaginationCourseResponse<DashboardCourseResponse> getCourseByFilters(Integer page, Integer size,
-            List<CourseCategory> categories, List<CourseLevel> levels, List<Type> types, String title);
+            List<CourseCategory> categories, List<CourseLevel> levels, List<Type> types, String title, Boolean sortByDate, Boolean sortByPurchase);
 
     PaginationCourseResponse<DashboardMyCourseResponse> getMyCourse(Integer page, Integer size,
-            List<CourseCategory> categories,
-            List<CourseLevel> levels, List<Type> types, Boolean completed, String title);
+            List<CourseCategory> categories, List<CourseLevel> levels, List<Type> types, Boolean completed, String title, Boolean sortByDate, Boolean sortByPurchaseCount);
 
     CourseResponse createCourse(CourseRequest courseRequest);
 

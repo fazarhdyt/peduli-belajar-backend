@@ -45,9 +45,11 @@ public class CourseController {
             @RequestParam(required = false) List<CourseCategory> categories,
             @RequestParam(required = false) List<CourseLevel> levels,
             @RequestParam(required = false) List<Type> types,
-            @RequestParam(required = false) String title) {
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) Boolean sortByDate,
+            @RequestParam(required = false) Boolean sortByPurchase) {
 
-        return ResponseData.statusResponse(courseService.getCourseByFilters(page, size, categories, levels, types, title),
+        return ResponseData.statusResponse(courseService.getCourseByFilters(page, size, categories, levels, types, title, sortByDate, sortByPurchase),
                 HttpStatus.OK, "success get courses");
     }
 
@@ -58,12 +60,14 @@ public class CourseController {
             @RequestParam(required = false, defaultValue = "6") Integer size,
             @RequestParam(required = false) String title,
             @RequestParam(required = false) Boolean completed,
+            @RequestParam(required = false) Boolean sortByDate,
+            @RequestParam(required = false) Boolean sortByPurchase,
             @RequestParam(required = false) List<CourseCategory> categories,
             @RequestParam(required = false) List<CourseLevel> levels,
             @RequestParam(required = false) List<Type> types) {
 
         return ResponseData.statusResponse(
-                courseService.getMyCourse(page, size, categories, levels, types, completed, title), HttpStatus.OK,
+                courseService.getMyCourse(page, size, categories, levels, types, completed, title, sortByDate, sortByPurchase), HttpStatus.OK,
                 "success get my courses");
     }
 
