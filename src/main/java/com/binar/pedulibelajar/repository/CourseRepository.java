@@ -19,28 +19,38 @@ public interface CourseRepository extends JpaRepository<Course, String> {
 
         Optional<Course> findByCourseCode(String courseCode);
 
-        @Query("SELECT c FROM Course c WHERE " +
+        @Query("SELECT c FROM Course c " +
+                        "LEFT JOIN Order o ON c.id = o.course.id WHERE " +
                         "c.delete = false AND" +
                         "(c.category.categoryName IN (:category) OR :category IS NULL) AND " +
                         "(c.level IN (:level) OR :level IS NULL) AND " +
                         "(c.type IN (:type) OR :type IS NULL) AND " +
-                        "(:title IS NULL OR (LOWER(c.title) LIKE LOWER(CONCAT('%', :title, '%'))))")
+                        "(:title IS NULL OR (LOWER(c.title) LIKE LOWER(CONCAT('%', :title, '%'))))" +
+                        "GROUP BY c.id ORDER BY " +
+                        "CASE WHEN :sortByDate = true THEN MAX(c.createdAt) END DESC, " +
+                        "CASE WHEN :sortByPurchaseCount = true THEN COUNT(o) END DESC")
         Optional<Page<Course>> findAllByFilters(
-                        @Param("category") List<CourseCategory> category,
-                        @Param("level") List<CourseLevel> level,
-                        @Param("type") List<Type> type,
+                        @Param("category") List<CourseCategory> categories,
+                        @Param("level") List<CourseLevel> levels,
+                        @Param("type") List<Type> types,
                         @Param("title") String title,
+                        @Param("sortByDate") Boolean sortByDate,
+                        @Param("sortByPurchaseCount") Boolean sortByPurchaseCount,
                         Pageable pageable);
 
         @Query("SELECT c FROM Course c " +
-                        "JOIN UserProgress up ON c.id = up.course.id " +
+                        "LEFT JOIN Order o ON c.id = o.course.id " +
+                        "LEFT JOIN UserProgress up ON c.id = up.course.id " +
                         "WHERE up.user.email = :email " +
                         "AND (c.category.categoryName IN (:category) OR :category IS NULL) " +
                         "AND (c.level IN (:level) OR :level IS NULL) " +
                         "AND (c.type IN (:type) OR :type IS NULL) " +
                         "AND (:completed IS NULL OR (up.percent = 100 AND :completed = true) OR (up.percent < 100 AND :completed = false))"
                         +
-                        "AND (:title IS NULL OR (LOWER(c.title) LIKE LOWER(CONCAT('%', :title, '%'))))")
+                        "AND (:title IS NULL OR (LOWER(c.title) LIKE LOWER(CONCAT('%', :title, '%'))))" +
+                        "GROUP BY c.id ORDER BY " +
+                        "CASE WHEN :sortByDate = true THEN MAX(o.createdAt) END DESC, " +
+                        "CASE WHEN :sortByPurchaseCount = true THEN COUNT(o) END DESC")
         Optional<Page<Course>> findMyCourseByFilters(
                         @Param("category") List<CourseCategory> categories,
                         @Param("level") List<CourseLevel> levels,
@@ -48,6 +58,8 @@ public interface CourseRepository extends JpaRepository<Course, String> {
                         @Param("completed") Boolean completed,
                         @Param("title") String title,
                         @Param("email") String email,
+                        @Param("sortByDate") Boolean sortByDate,
+                        @Param("sortByPurchaseCount") Boolean sortByPurchaseCount,
                         Pageable pageable);
 
         @Query("SELECT c FROM Course c WHERE c.teacher = :teacher AND c.delete = false"+

@@ -98,6 +98,7 @@ public class AuthServiceImpl implements AuthService{
         String encodedPassword = bCryptPasswordEncoder.encode(user.getPassword());
         user.setPassword(encodedPassword);
         user.setRole(ERole.USER);
+        user.setProfilePictureUrl("https://ih1.redbubble.net/image.1000793944.6139/st,small,507x507-pad,600x600,f8f8f8.jpg");
 
         userRepository.save(user);
 
@@ -122,6 +123,7 @@ public class AuthServiceImpl implements AuthService{
         String encodedPassword = bCryptPasswordEncoder.encode(user.getPassword());
         user.setPassword(encodedPassword);
         user.setRole(ERole.ADMIN);
+        user.setProfilePictureUrl("https://ih1.redbubble.net/image.1000793944.6139/st,small,507x507-pad,600x600,f8f8f8.jpg");
 
         userRepository.save(user);
 

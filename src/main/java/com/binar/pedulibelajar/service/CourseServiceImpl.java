@@ -99,10 +99,10 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public PaginationCourseResponse<DashboardCourseResponse> getCourseByFilters(Integer page, Integer size,
             List<CourseCategory> category,
-            List<CourseLevel> levels, List<Type> types, String title) {
+            List<CourseLevel> levels, List<Type> types, String title, Boolean sortByDate, Boolean sortByPurchase) {
         page -= 1;
         Pageable pages = PageRequest.of(page, size);
-        Page<Course> courses = courseRepository.findAllByFilters(category, levels, types, title, pages)
+        Page<Course> courses = courseRepository.findAllByFilters(category, levels, types, title, sortByDate, sortByPurchase, pages)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "course not found"));
         return mapToPaginationCourseResponse(courses);
     }
@@ -110,12 +110,12 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public PaginationCourseResponse<DashboardMyCourseResponse> getMyCourse(Integer page, Integer size,
             List<CourseCategory> categories,
-            List<CourseLevel> levels, List<Type> types, Boolean completed, String title) {
+            List<CourseLevel> levels, List<Type> types, Boolean completed, String title, Boolean sortByDate, Boolean sortByPurchaseCount) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         page -= 1;
         Pageable pages = PageRequest.of(page, size);
         Page<Course> courses = courseRepository
-                .findMyCourseByFilters(categories, levels, types, completed, title, email, pages)
+                .findMyCourseByFilters(categories, levels, types, completed, title, email, sortByDate, sortByPurchaseCount, pages)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "course not found"));
         return mapToPaginationMyCourseResponse(courses);
     }

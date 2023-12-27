@@ -1,11 +1,14 @@
 package com.binar.pedulibelajar.model;
 
 import com.binar.pedulibelajar.enumeration.PaymentMethod;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -16,6 +19,8 @@ import java.util.Date;
 @Builder
 @Entity
 @Table(name = "orders")
+@EntityListeners(AuditingEntityListener.class)
+@JsonIgnoreProperties(value = "createdAt", allowGetters = false)
 public class Order {
 
     @Id
@@ -32,6 +37,11 @@ public class Order {
     private Course course;
 
     private boolean paid;
+
+    @CreatedDate
+    @Column(nullable = false, updatable = false)
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date createdAt;
 
     @Enumerated(EnumType.STRING)
     private PaymentMethod paymentMethod;
