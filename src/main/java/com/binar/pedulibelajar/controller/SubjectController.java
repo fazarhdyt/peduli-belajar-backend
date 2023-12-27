@@ -24,7 +24,7 @@ public class SubjectController {
                 "success get subject");
     }
 
-    @PostMapping("/admin/subject/")
+    @PostMapping("/admin/subject")
     @Operation(summary = "api to create subject")
     public ResponseEntity<Object> createCourse(@RequestParam String chapterId,
                                                @RequestBody SubjectRequest subjectRequest) {

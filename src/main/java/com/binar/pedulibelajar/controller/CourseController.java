@@ -42,12 +42,12 @@ public class CourseController {
     public ResponseEntity<Object> getCoursesByFilters(
             @RequestParam(required = false, defaultValue = "1") Integer page,
             @RequestParam(required = false, defaultValue = "3") Integer size,
-            @RequestParam(required = false) List<CourseCategory> category,
-            @RequestParam(required = false) List<CourseLevel> level,
-            @RequestParam(required = false) List<Type> type,
+            @RequestParam(required = false) List<CourseCategory> categories,
+            @RequestParam(required = false) List<CourseLevel> levels,
+            @RequestParam(required = false) List<Type> types,
             @RequestParam(required = false) String title) {
 
-        return ResponseData.statusResponse(courseService.getCourseByFilters(page, size, category, level, type, title),
+        return ResponseData.statusResponse(courseService.getCourseByFilters(page, size, categories, levels, types, title),
                 HttpStatus.OK, "success get courses");
     }
 
