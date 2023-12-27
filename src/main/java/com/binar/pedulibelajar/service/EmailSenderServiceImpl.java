@@ -49,7 +49,7 @@ public class EmailSenderServiceImpl implements EmailSenderService {
         zonedDateTime = token.getExpiryDate().atZone(ZoneId.systemDefault());
 
         String subject = "Reset Password";
-        String body = "Your link to reset password : http://localhost:5173/reset-password/" + token.getToken()
+        String body = "Your link to reset password : https://peduli-belajar.vercel.app/reset-password/" + token.getToken()
                 + " valid until " + formatter.format(zonedDateTime);
 
         message.setTo(toEmail);

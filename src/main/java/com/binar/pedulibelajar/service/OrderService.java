@@ -16,7 +16,7 @@ public interface OrderService {
 
     void resolveOrder(String orderId);
 
-    List<StatusOrderResponse> getStatusOrders();
+    List<StatusOrderResponse> getStatusOrders(Boolean isPaid);
 
     List<PaymentHistoryResponse> getPaymentHistory();
 

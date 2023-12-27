@@ -11,5 +11,5 @@ public class SubjectResponse {
     private String videoTitle;
     private String videoLink;
     private Type subjectType;
-    boolean done;
+    private boolean done;
 }

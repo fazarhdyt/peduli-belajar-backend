@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface OrderRepository extends JpaRepository<Order, String> {
 
@@ -28,4 +30,11 @@ public interface OrderRepository extends JpaRepository<Order, String> {
 
         @Query("SELECT COUNT(o) FROM Order o JOIN Course c ON o.course.id = c.id WHERE c.teacher = :teacher")
         long countActiveUsers(@Param("teacher") String teacher);
+
+        @Query("SELECT o FROM Order o JOIN o.course c " +
+                "WHERE c.teacher = :teacher " +
+                "AND c.type = 'PREMIUM' " +
+                "AND (:isPaid is null OR o.paid = :isPaid)")
+        List<Order> findOrdersByTeacherAndIsPaid(@Param("teacher") String teacher,
+                                                 @Param("isPaid") Boolean isPaid);
 }

@@ -5,7 +5,6 @@ import com.binar.pedulibelajar.dto.response.CategoryResponse;
 import com.binar.pedulibelajar.dto.response.OrderDetailCourseResponse;
 import com.binar.pedulibelajar.dto.response.PaymentHistoryResponse;
 import com.binar.pedulibelajar.dto.response.StatusOrderResponse;
-import com.binar.pedulibelajar.enumeration.Type;
 import com.binar.pedulibelajar.model.*;
 import com.binar.pedulibelajar.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -119,14 +118,13 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<StatusOrderResponse> getStatusOrders() {
-
+    public List<StatusOrderResponse> getStatusOrders(Boolean isPaid) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "user not found"));
-        return orderRepository.findAll().stream()
-                .filter(order -> order.getCourse().getTeacher().equals(user.getFullName()))
-                .filter(order -> order.getCourse().getType().equals(Type.PREMIUM))
+
+        return orderRepository.findOrdersByTeacherAndIsPaid(user.getFullName(), isPaid)
+                .stream()
                 .map(this::mapToStatusOrderResponse)
                 .collect(Collectors.toList());
     }

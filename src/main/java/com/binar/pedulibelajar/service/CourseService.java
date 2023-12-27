@@ -32,7 +32,7 @@ public interface CourseService {
 
     long getPremiumCourse();
 
-    List<CourseResponse> getManageCourses();
+    List<CourseResponse> getManageCourses(Type type);
 
     Map<String, Double> getProgress(String courseCode);
 }
