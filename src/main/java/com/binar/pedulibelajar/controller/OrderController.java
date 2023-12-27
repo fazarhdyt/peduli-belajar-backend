@@ -2,6 +2,7 @@ package com.binar.pedulibelajar.controller;
 
 import com.binar.pedulibelajar.dto.request.OrderRequest;
 import com.binar.pedulibelajar.dto.response.ResponseData;
+import com.binar.pedulibelajar.dto.response.StatusOrderResponse;
 import com.binar.pedulibelajar.service.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @CrossOrigin("*")
 @RestController
@@ -22,7 +24,8 @@ public class OrderController {
     @PostMapping("/order")
     @Operation(summary = "api for user to order course")
     public ResponseEntity<Object> orderCourse(@Valid @RequestBody OrderRequest orderRequest) {
-        return ResponseData.statusResponse(orderService.orderPremium(orderRequest), HttpStatus.OK, "success order course");
+        return ResponseData.statusResponse(orderService.orderPremium(orderRequest), HttpStatus.OK,
+                "success order course");
     }
 
     @PutMapping("/order/resolve")
@@ -35,18 +38,20 @@ public class OrderController {
     @GetMapping("/order/{courseCode}")
     @Operation(summary = "api for user to get detail order")
     public ResponseEntity<Object> getOrderDetail(@PathVariable String courseCode) {
-        return ResponseData.statusResponse(orderService.getOrderDetailCourse(courseCode), HttpStatus.OK, "success get payment history");
+        return ResponseData.statusResponse(orderService.getOrderDetailCourse(courseCode), HttpStatus.OK,
+                "success get payment history");
     }
 
     @GetMapping("/order/payment-history")
     @Operation(summary = "api for user to get payment history")
     public ResponseEntity<Object> getPaymentHistory() {
-        return ResponseData.statusResponse(orderService.getPaymentHistory(), HttpStatus.OK, "success get payment history");
+        return ResponseData.statusResponse(orderService.getPaymentHistory(), HttpStatus.OK,
+                "success get payment history");
     }
 
-    @GetMapping("/admin/status-order")
-    @Operation(summary = "api for admin to get status order user")
-    public ResponseEntity<Object> getStatusOrder() {
-        return ResponseData.statusResponse(orderService.getStatusOrders(), HttpStatus.OK, "success get status order course");
+    @GetMapping("admin/status-order")
+    @Operation(summary = "api for admin to get status order")
+    public List<StatusOrderResponse> getStatusOrders(@RequestParam(required = false) Boolean isPaid) {
+        return orderService.getStatusOrders(isPaid);
     }
 }

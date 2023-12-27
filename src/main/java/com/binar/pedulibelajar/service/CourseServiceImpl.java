@@ -76,7 +76,7 @@ public class CourseServiceImpl implements CourseService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "user not found"));
 
-        if(user.getRole() == ERole.ADMIN) {
+        if (user.getRole() == ERole.ADMIN) {
             return courseOptional.map(course -> mapToDetailCourseResponse(course, null)).get();
         }
 
@@ -154,15 +154,18 @@ public class CourseServiceImpl implements CourseService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "user not found"))
                 .getFullName());
         existingCourse.setTitle(updateCourse.getTitle() != null ? updateCourse.getTitle() : existingCourse.getTitle());
-        existingCourse.setCourseCode(updateCourse.getCourseCode() != null ? updateCourse.getCourseCode() : existingCourse.getCourseCode());
+        existingCourse.setCourseCode(
+                updateCourse.getCourseCode() != null ? updateCourse.getCourseCode() : existingCourse.getCourseCode());
         existingCourse.setLevel(updateCourse.getLevel() != null ? updateCourse.getLevel() : existingCourse.getLevel());
         existingCourse.setType(updateCourse.getType() != null ? updateCourse.getType() : existingCourse.getType());
         existingCourse.setCategory(categoryRepository.findByCategoryName(updateCourse.getCategory().getCategoryName())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
                         "category not found")));
-        existingCourse.setDescription(updateCourse.getDescription() != null ? updateCourse.getDescription() : existingCourse.getDescription());
+        existingCourse.setDescription(updateCourse.getDescription() != null ? updateCourse.getDescription()
+                : existingCourse.getDescription());
         existingCourse.setPrice(updateCourse.getPrice() != null ? updateCourse.getPrice() : existingCourse.getPrice());
-        existingCourse.setTelegramLink(updateCourse.getTelegramLink() != null ? updateCourse.getTelegramLink() : existingCourse.getTelegramLink());
+        existingCourse.setTelegramLink(updateCourse.getTelegramLink() != null ? updateCourse.getTelegramLink()
+                : existingCourse.getTelegramLink());
         courseRepository.save(existingCourse);
 
         return modelMapper.map(editCourseRequest, CourseResponse.class);
@@ -193,12 +196,13 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public List<CourseResponse> getManageCourses() {
+    public List<CourseResponse> getManageCourses(Type type) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "user not found"));
+        List<Course> filteredCourse = courseRepository.findManageCourses(user.getFullName(), type);
 
-        return courseRepository.findManageCourses(user.getFullName()).stream()
+        return filteredCourse.stream()
                 .map(course -> modelMapper.map(course, CourseResponse.class))
                 .collect(Collectors.toList());
     }
@@ -320,6 +324,7 @@ public class CourseServiceImpl implements CourseService {
         course.setChapter(chapter);
         return course;
     }
+
     private Chapter mapToEntityChapter(ChapterRequest chapterRequest) {
         Chapter chapter = modelMapper.map(chapterRequest, Chapter.class);
 
@@ -335,7 +340,6 @@ public class CourseServiceImpl implements CourseService {
     private Subject mapToEntitySubject(SubjectRequest subjectRequest) {
         return modelMapper.map(subjectRequest, Subject.class);
     }
-
 
     private PaginationCourseResponse<DashboardCourseResponse> mapToPaginationCourseResponse(Page<Course> coursePage) {
         List<Course> courseResponses = coursePage.getContent();
