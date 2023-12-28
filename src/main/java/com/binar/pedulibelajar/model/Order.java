@@ -19,8 +19,6 @@ import java.util.Date;
 @Builder
 @Entity
 @Table(name = "orders")
-@EntityListeners(AuditingEntityListener.class)
-@JsonIgnoreProperties(value = "createdAt", allowGetters = false)
 public class Order {
 
     @Id
@@ -38,9 +36,6 @@ public class Order {
 
     private boolean paid;
 
-    @CreatedDate
-    @Column(nullable = false, updatable = false)
-    @Temporal(TemporalType.TIMESTAMP)
     private Date createdAt;
 
     @Enumerated(EnumType.STRING)

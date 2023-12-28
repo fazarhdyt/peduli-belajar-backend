@@ -60,6 +60,7 @@ public class OrderServiceImpl implements OrderService {
                 .user(user)
                 .course(course)
                 .paymentMethod(orderRequest.getPaymentMethod())
+                .createdAt(new Date())
                 .paymentDate(null)
                 .paid(false)
                 .build();
@@ -93,6 +94,7 @@ public class OrderServiceImpl implements OrderService {
                 .user(user)
                 .course(course)
                 .paymentMethod(null)
+                .createdAt(new Date())
                 .paymentDate(new Date())
                 .paid(true)
                 .build();
@@ -204,6 +206,7 @@ public class OrderServiceImpl implements OrderService {
 
     private CategoryResponse mapToCategoryResponse(Category category) {
         return CategoryResponse.builder()
+                .id(category.getId())
                 .categoryName(category.getCategoryName())
                 .categoryImage(category.getCategoryImage())
                 .build();
