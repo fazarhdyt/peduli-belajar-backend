@@ -51,7 +51,7 @@ public class OrderController {
 
     @GetMapping("admin/status-order")
     @Operation(summary = "api for admin to get status order")
-    public List<StatusOrderResponse> getStatusOrders(@RequestParam(required = false) Boolean isPaid) {
-        return orderService.getStatusOrders(isPaid);
+    public List<StatusOrderResponse> getStatusOrders(@RequestParam(required = false) Boolean isPaid, @RequestParam(required = false) String title) {
+        return orderService.getStatusOrders(isPaid, title);
     }
 }

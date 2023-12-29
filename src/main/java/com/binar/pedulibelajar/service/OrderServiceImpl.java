@@ -120,12 +120,12 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<StatusOrderResponse> getStatusOrders(Boolean isPaid) {
+    public List<StatusOrderResponse> getStatusOrders(Boolean isPaid, String title) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "user not found"));
 
-        return orderRepository.findOrdersByTeacherAndIsPaid(user.getFullName(), isPaid)
+        return orderRepository.findOrdersByTeacherAndIsPaid(user.getFullName(), isPaid, title)
                 .stream()
                 .map(this::mapToStatusOrderResponse)
                 .collect(Collectors.toList());

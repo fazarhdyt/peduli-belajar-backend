@@ -34,7 +34,8 @@ public interface OrderRepository extends JpaRepository<Order, String> {
         @Query("SELECT o FROM Order o JOIN o.course c " +
                 "WHERE c.teacher = :teacher " +
                 "AND c.type = 'PREMIUM' " +
-                "AND (:isPaid is null OR o.paid = :isPaid)")
+                "AND (:isPaid is null OR o.paid = :isPaid) " +
+                "AND (:title IS NULL OR (LOWER(c.title) LIKE LOWER(CONCAT('%', :title, '%'))))")
         List<Order> findOrdersByTeacherAndIsPaid(@Param("teacher") String teacher,
-                                                 @Param("isPaid") Boolean isPaid);
+                                                 @Param("isPaid") Boolean isPaid, @Param("title") String title);
 }

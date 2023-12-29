@@ -107,8 +107,8 @@ public class CourseController {
 
     @GetMapping("/admin/manage-course")
     @Operation(summary = "api for admin to get courses that is managed")
-    public ResponseEntity<Object> getManageCourses(@RequestParam(name = "type", required = false) Type type) {
-        return ResponseData.statusResponse(courseService.getManageCourses(type), HttpStatus.OK, "success get courses");
+    public ResponseEntity<Object> getManageCourses(@RequestParam(name = "type", required = false) Type type, @RequestParam(required = false) String title) {
+        return ResponseData.statusResponse(courseService.getManageCourses(type, title), HttpStatus.OK, "success get courses");
     }
 
     @GetMapping("/course/progress/{courseCode}")
