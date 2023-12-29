@@ -31,7 +31,7 @@ public interface CourseService {
 
     long getPremiumCourse();
 
-    List<CourseResponse> getManageCourses(Type type);
+    List<CourseResponse> getManageCourses(Type type, String title);
 
     Map<String, Double> getProgress(String courseCode);
 }

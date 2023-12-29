@@ -62,9 +62,10 @@ public interface CourseRepository extends JpaRepository<Course, String> {
                         @Param("sortByPurchaseCount") Boolean sortByPurchaseCount,
                         Pageable pageable);
 
-        @Query("SELECT c FROM Course c WHERE c.teacher = :teacher AND c.delete = false"+
-                " AND (c.type = :type OR :type IS NULL)")
-        List<Course> findManageCourses(@Param("teacher") String teacher, @Param("type")Type type);
+        @Query("SELECT c FROM Course c WHERE c.teacher = :teacher AND c.delete = false "+
+                "AND (c.type = :type OR :type IS NULL)" +
+                "AND (:title IS NULL OR (LOWER(c.title) LIKE LOWER(CONCAT('%', :title, '%'))))")
+        List<Course> findManageCourses(@Param("teacher") String teacher, @Param("type")Type type, @Param("title") String title);
 
         @Query("SELECT COUNT(c) FROM Course c WHERE c.teacher = :teacher AND c.delete = false")
         long countTotalCourses(@Param("teacher") String teacher);
