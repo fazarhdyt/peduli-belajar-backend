@@ -12,6 +12,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -32,6 +33,7 @@ public class ChapterServiceImpl implements ChapterService{
     private ModelMapper modelMapper;
 
     @Override
+    @Transactional
     public ChapterResponse createChapter(String courseId, ChapterRequest chapterRequest) {
         Chapter chapter = modelMapper.map(chapterRequest, Chapter.class);
         chapter.setCourse(courseRepository.findById(courseId)
@@ -46,6 +48,7 @@ public class ChapterServiceImpl implements ChapterService{
     }
 
     @Override
+    @Transactional(readOnly = true)
     public ChapterResponse getChapter(String id) {
         Chapter chapter = chapterRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "chapter not found"));
@@ -53,6 +56,7 @@ public class ChapterServiceImpl implements ChapterService{
     }
 
     @Override
+    @Transactional
     public ChapterResponse updateChapter(String id, EditChapterRequest editChapterRequest) {
         Chapter chapter = chapterRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "chapter not found"));

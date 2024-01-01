@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.text.SimpleDateFormat;
@@ -42,6 +43,7 @@ public class OrderServiceImpl implements OrderService {
     private EmailSenderService emailSenderService;
 
     @Override
+    @Transactional
     public Map<String, String> orderPremium(OrderRequest orderRequest) {
 
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -76,6 +78,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Transactional
     public void orderFree(String courseCode) {
 
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -106,6 +109,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Transactional
     public void resolveOrder(String orderId) {
 
         Order order = orderRepository.findById(orderId)
@@ -120,6 +124,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<StatusOrderResponse> getStatusOrders(Boolean isPaid, String title) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findByEmail(email)
@@ -132,6 +137,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<PaymentHistoryResponse> getPaymentHistory() {
 
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -145,6 +151,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public OrderDetailCourseResponse getOrderDetailCourse(String courseCode) {
 
         Course course = courseRepository.findByCourseCode(courseCode)

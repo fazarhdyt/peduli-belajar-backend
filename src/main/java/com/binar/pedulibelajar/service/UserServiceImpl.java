@@ -17,16 +17,15 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.transaction.Transactional;
 import java.util.HashMap;
 import java.util.List;
 import java.io.IOException;
 import java.util.Map;
 
 @Service
-@Transactional
 public class UserServiceImpl implements UserService {
 
     @Autowired
@@ -95,6 +94,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public UserResponse getUser() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         return modelMapper.map(userRepository.findByEmail(email).orElseThrow(
@@ -102,6 +102,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public UserResponse editProfile(EditProfileRequest editProfileRequest) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
@@ -130,6 +131,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public void updatePassword(UpdatePasswordRequest updatePasswordRequest) {
         // Mendapatkan pengguna yang saat ini logins
         Authentication currentAuthentication = SecurityContextHolder.getContext().getAuthentication();
@@ -151,6 +153,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public Map<String, Double> progressUser(String courseCode, String subjectId) {
 
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -169,6 +172,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public long getActiveUser() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findByEmail(email)

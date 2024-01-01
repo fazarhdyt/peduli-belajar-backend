@@ -4,8 +4,6 @@ import java.time.Instant;
 import java.util.Optional;
 import java.util.Random;
 
-import javax.transaction.Transactional;
-
 import com.binar.pedulibelajar.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,6 +13,7 @@ import org.springframework.stereotype.Service;
 import com.binar.pedulibelajar.model.OTP;
 import com.binar.pedulibelajar.repository.OTPRepository;
 import com.binar.pedulibelajar.repository.UserRepository;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
@@ -35,6 +34,7 @@ public class OTPServiceImpl implements OTPService {
     }
 
     @Override
+    @Transactional
     public OTP createOTP(String email) {
 
         User user = userRepository.findByEmail(email)
