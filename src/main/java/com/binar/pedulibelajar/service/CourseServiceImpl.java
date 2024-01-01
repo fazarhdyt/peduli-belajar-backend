@@ -19,6 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.HashMap;
@@ -61,6 +62,7 @@ public class CourseServiceImpl implements CourseService {
     private UserCourseRepository userCourseRepository;
 
     @Override
+    @Transactional(readOnly = true)
     public List<DashboardCourseResponse> getAllCourses() {
         List<Course> courses = courseRepository.findAll();
         return courses.stream()
@@ -69,6 +71,7 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public DetailCourseResponse getCourseByCourseCode(String courseCode) {
 
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -97,6 +100,7 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public PaginationCourseResponse<DashboardCourseResponse> getCourseByFilters(Integer page, Integer size,
             List<CourseCategory> category,
             List<CourseLevel> levels, List<Type> types, String title, Boolean sortByDate, Boolean sortByPurchase) {
@@ -108,6 +112,7 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public PaginationCourseResponse<DashboardMyCourseResponse> getMyCourse(Integer page, Integer size,
             List<CourseCategory> categories,
             List<CourseLevel> levels, List<Type> types, Boolean completed, String title, Boolean sortByDate, Boolean sortByPurchaseCount) {
@@ -121,6 +126,7 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
+    @Transactional
     public CourseResponse createCourse(CourseRequest courseRequest) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         Course course = mapToEntityCourse(courseRequest);
@@ -143,6 +149,7 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
+    @Transactional
     public CourseResponse updateCourse(String courseCode, EditCourseRequest editCourseRequest) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         Course existingCourse = courseRepository.findByCourseCode(courseCode)
@@ -168,10 +175,11 @@ public class CourseServiceImpl implements CourseService {
                 : existingCourse.getTelegramLink());
         courseRepository.save(existingCourse);
 
-        return modelMapper.map(editCourseRequest, CourseResponse.class);
+        return modelMapper.map(existingCourse, CourseResponse.class);
     }
 
     @Override
+    @Transactional
     public void deleteCourse(String courseCode) {
         courseRepository.findByCourseCode(courseCode).ifPresent(course -> {
             course.setDelete(true);
@@ -180,6 +188,7 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public long getTotalCourse() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findByEmail(email)
@@ -188,6 +197,7 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public long getPremiumCourse() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findByEmail(email)
@@ -196,6 +206,7 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<CourseResponse> getManageCourses(Type type, String title) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findByEmail(email)
@@ -208,6 +219,7 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Map<String, Double> getProgress(String courseCode) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findByEmail(email)

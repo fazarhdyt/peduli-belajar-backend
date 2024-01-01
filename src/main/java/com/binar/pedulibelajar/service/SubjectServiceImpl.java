@@ -9,6 +9,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
@@ -24,6 +25,7 @@ public class SubjectServiceImpl implements SubjectService {
     private ModelMapper modelMapper;
 
     @Override
+    @Transactional
     public SubjectResponse createSubject(String chapterId, SubjectRequest subjectRequest) {
         Subject subject = modelMapper.map(subjectRequest, Subject.class);
         subject.setChapter(chapterRepository.findById(chapterId)
@@ -33,6 +35,7 @@ public class SubjectServiceImpl implements SubjectService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public SubjectResponse getSubject(String id) {
         Subject subject = subjectRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "subject not found"));
@@ -40,6 +43,7 @@ public class SubjectServiceImpl implements SubjectService {
     }
 
     @Override
+    @Transactional
     public SubjectResponse updateSubject(String id, SubjectRequest subjectRequest) {
         Subject subject = subjectRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "subject not found"));

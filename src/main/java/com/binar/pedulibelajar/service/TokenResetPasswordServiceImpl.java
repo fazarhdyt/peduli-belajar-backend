@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
@@ -32,6 +33,7 @@ public class TokenResetPasswordServiceImpl implements TokenResetPasswordService 
     }
 
     @Override
+    @Transactional
     public TokenResetPassword createToken(String email) {
 
         User user = userRepository.findByEmail(email)
@@ -63,6 +65,7 @@ public class TokenResetPasswordServiceImpl implements TokenResetPasswordService 
     }
 
     @Override
+    @Transactional
     public void deleteByEmail(String email) {
         tokenResetPasswordRepository.deleteByUser(userRepository.findByEmail(email).get());
     }
