@@ -5,6 +5,7 @@ import com.binar.pedulibelajar.dto.response.CategoryResponse;
 import com.binar.pedulibelajar.dto.response.OrderDetailCourseResponse;
 import com.binar.pedulibelajar.dto.response.PaymentHistoryResponse;
 import com.binar.pedulibelajar.dto.response.StatusOrderResponse;
+import com.binar.pedulibelajar.enumeration.PaymentMethod;
 import com.binar.pedulibelajar.model.*;
 import com.binar.pedulibelajar.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -96,7 +97,7 @@ public class OrderServiceImpl implements OrderService {
         Order order = Order.builder()
                 .user(user)
                 .course(course)
-                .paymentMethod(null)
+                .paymentMethod(PaymentMethod.OTHER)
                 .createdAt(new Date())
                 .paymentDate(new Date())
                 .paid(true)

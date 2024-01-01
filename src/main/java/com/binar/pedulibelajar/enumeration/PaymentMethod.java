@@ -2,5 +2,6 @@ package com.binar.pedulibelajar.enumeration;
 
 public enum PaymentMethod {
     BANK_TRANSFER,
-    CREDIT_CARD
+    CREDIT_CARD,
+    OTHER
 }

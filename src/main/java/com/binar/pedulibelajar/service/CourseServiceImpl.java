@@ -71,7 +71,7 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public DetailCourseResponse getCourseByCourseCode(String courseCode) {
 
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
